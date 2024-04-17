@@ -1,0 +1,29 @@
+[
+  {
+    "account": "<account name>",
+    "skip": false,
+    "teams": [
+      {
+        "name": "<team1 name>",
+        "region": "<region>",
+        "key": "<team1 alerts api key>"
+      },
+      {
+        "name": "<team2 name>",
+        "region": "<region>",
+        "key": "<team2 alerts api key>"
+      }
+    ]
+  },
+  {
+    "account": "<account2 name>",
+    "skip": false,
+    "teams": [
+      {
+        "name": "<team name>",
+        "region": "<region>",
+        "key": "<team2 alerts api key>"
+      }
+    ]
+  }
+]

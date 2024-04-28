@@ -292,12 +292,12 @@ def delete_apm_services(region, key, pattern):
     for service in json_data['services']:
         service_name = service['name']
         if re.fullmatch(pat, service_name):
-            print("{} matches pattern {} -  deleting!".format(service_name, pattern))
+            print("{} matches regex pattern /{}/ -  deleting!".format(service_name, pattern))
             parameters = """{"id":"%s"}""" % (service['id'])
             json_data = call_grpc(region, key, GRPC_APM_DELETE, parameters)
             continue
         else:
-            print("{} does not match pattern {}".format(service_name, pattern))
+            print("{} does not match regex pattern /{}/".format(service_name, pattern))
 
 
 def flush_slo(region, key):

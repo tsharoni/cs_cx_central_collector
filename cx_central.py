@@ -29,7 +29,7 @@ coralogix_webhook_url = "https://api.{}/api/v1/external/integrations/{}"
 coralogix_grafana_url = "https://ng-api-http.{}/grafana/api/search"
 coralogix_grafana_panels_url = "https://ng-api-http.{}/grafana/api/dashboards/uid/{}"
 coralogix_tco_overrides_url = "https://api.{}/api/v1/external/tco/overrides"
-coralogix_custom_enrichment_url = "https://webapi.{}/api/v1/external/custom-enrichments"
+coralogix_custom_enrichment_url = "https://webapi.{}/api/v1/external/custom-enrichments{}{}"
 coralogix_grpc_url = "ng-api-grpc.{}:443"
 
 GRPC_E2M_METHOD = "com.coralogixapis.events2metrics.v2.Events2MetricService.ListE2M"
@@ -41,6 +41,7 @@ GRPC_DASHBOARD_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardCatal
 GRPC_DASHBOARD_GET_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard"
 
 GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApmService"
+
 
 def get_gauge_callback(_: CallbackOptions):
 
@@ -85,6 +86,15 @@ def call_http(url, key):
         response = requests.request("GET", url, headers=headers, data={})
         return response.text
     except:
+        print('http error')
+
+
+def call_http_extended(url, key, method="GET", data={}, files={}):
+    if True:
+        headers = {'Authorization': 'Bearer {}'.format(key)}
+        response = requests.request(method, url, headers=headers, data=data,files=files)
+        return response.text
+    else:
         print('http error')
 
 
@@ -323,6 +333,20 @@ def flush_slo(region, key):
     print("total slo = {} {}".format(len(json_data['slos']), slos))
 
 
+def get_dashboards(region, key):
+
+    dashboards = {}
+    json_data = call_grpc(region, key, GRPC_DASHBOARD_METHOD)
+
+    if not json_data:
+        return
+
+    for dashboard in json_data['items']:
+        dashboards[dashboard['id']] = dashboard['name']
+
+    return dashboards
+
+
 def flush_dashboards(region, key):
 
     json_data = call_grpc(region, key, GRPC_DASHBOARD_METHOD)
@@ -490,3 +514,60 @@ def flush_grafana(region, key):
         total_grafana_panels,
         panels_type)
     )
+
+
+def send_enrichment(region, key, dictionary, enrichment_file_name):
+
+    filename = "{}.csv".format(enrichment_file_name)
+    f = open(filename, 'w')
+
+    f.write("uid,name\r\n")
+
+    for item in dictionary:
+        # replacing comma with semicolon
+        item_value = dictionary[item].replace(',', ';')
+        f.write("{},{}\r\n".format(item, item_value))
+
+    f.close()
+
+    payload = {
+            "name": "{}".format(enrichment_file_name),
+            "description": "{}".format(enrichment_file_name)
+    }
+
+    files = {
+            "file": (filename, open(filename,  'rb'))
+    }
+
+    enrichment_url = coralogix_custom_enrichment_url.format(region_domains[region],'','')
+    # check for existing custom enrichment
+    response = json.loads(call_http_extended(
+        enrichment_url,
+        key
+    ))
+
+    enrichment_id = None
+    for custom_enrichment in response:
+        if custom_enrichment['name'] == enrichment_file_name:
+            enrichment_id = custom_enrichment['id']
+            break
+
+    if enrichment_id:
+        # Update existing
+        method = 'PUT'
+        enrichment_url = coralogix_custom_enrichment_url.format(region_domains[region], '/', enrichment_id)
+    else:
+        # Create a new one
+        method = 'POST'
+
+    response = json.loads(call_http_extended(
+        url=enrichment_url,
+        key=key,
+        method=method,
+        data=payload,
+        files=files
+    ))
+    print(response)
+
+    files['file'][1].close()
+

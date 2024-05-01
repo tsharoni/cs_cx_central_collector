@@ -80,21 +80,12 @@ attributes = {}
 simulate = False
 
 
-def call_http(url, key):
-    try:
-        headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer {}'.format(key)}
-        response = requests.request("GET", url, headers=headers, data={})
-        return response.text
-    except:
-        print('http error')
-
-
 def call_http_extended(url, key, method="GET", data={}, files={}):
-    if True:
+    try:
         headers = {'Authorization': 'Bearer {}'.format(key)}
         response = requests.request(method, url, headers=headers, data=data,files=files)
         return response.text
-    else:
+    except:
         print('http error')
 
 
@@ -175,7 +166,7 @@ def flush_alerts(region, key):
     active = 0
     alerts_type = {}
 
-    source_alerts_json = json.loads(call_http(coralogix_alerts_url.format(region_domains[region]), key))
+    source_alerts_json = json.loads(call_http_extended(coralogix_alerts_url.format(region_domains[region]), key))
 
     for alert in source_alerts_json['alerts']:
         total += 1
@@ -207,7 +198,7 @@ def flush_webhooks(region, key):
 
     labels = {'type': 'webhook'}
     total_webhook = 0
-    webhooks = json.loads(call_http(coralogix_webhook_url.format(region_domains[region], ""), key))
+    webhooks = json.loads(call_http_extended(coralogix_webhook_url.format(region_domains[region], ""), key))
 
     webhook_types = {}
     for webhook in webhooks:
@@ -344,6 +335,8 @@ def get_dashboards(region, key):
     for dashboard in json_data['items']:
         dashboards[dashboard['id']] = dashboard['name']
 
+    print('number of dashboard added [{}]'.format(len(dashboards)))
+
     return dashboards
 
 
@@ -429,7 +422,7 @@ def flush_tco_overrides(region, key):
 
     labels = {'type': 'tco_overrides'}
 
-    overrides = json.loads(call_http(coralogix_tco_overrides_url.format(region_domains[region]), key))
+    overrides = json.loads(call_http_extended(coralogix_tco_overrides_url.format(region_domains[region]), key))
 
     flush_results(labels, len(overrides))
 
@@ -440,7 +433,7 @@ def flush_rules(region, key):
 
     labels = {'type': 'rules_group'}
 
-    rules = json.loads(call_http(coralogix_parsing_url.format(region_domains[region]), key))
+    rules = json.loads(call_http_extended(coralogix_parsing_url.format(region_domains[region]), key))
 
     total_rules_group = 0
     total_rules = 0
@@ -478,10 +471,10 @@ def flush_grafana(region, key):
     total_grafana_panels = 0
     total_grafana_folders = 0
     panels_type = {}
-    dashboards = json.loads(call_http(coralogix_grafana_url.format(region_domains[region]), key))
+    dashboards = json.loads(call_http_extended(coralogix_grafana_url.format(region_domains[region]), key))
 
     for dashboard in dashboards:
-        dashboards_panels = json.loads(call_http(
+        dashboards_panels = json.loads(call_http_extended(
             coralogix_grafana_panels_url.format(region_domains[region], dashboard['uid']),
             key)
         )
@@ -520,8 +513,6 @@ def send_enrichment(region, key, dictionary, enrichment_file_name):
 
     filename = "{}.csv".format(enrichment_file_name)
     f = open(filename, 'w')
-
-    f.write("uid,name\r\n")
 
     for item in dictionary:
         # replacing comma with semicolon

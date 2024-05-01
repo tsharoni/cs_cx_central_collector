@@ -4,6 +4,7 @@ from os import environ
 
 import cx_central
 
+
 if __name__ == '__main__':
 
     #cx_central.set_simulate()
@@ -11,7 +12,17 @@ if __name__ == '__main__':
     f = open('teams.json')
     teams_json = json.load(f)
 
+    # Required api_key for enrichment
+    cx_api_key = environ.get('CX_API_KEY')
+    cx_api_key_region = environ.get('CX_API_KEY_REGION')
+
     account_env = environ.get('account')
+
+    if cx_api_key and cx_api_key_region:
+        enrichment = True
+    else:
+        enrichment = False
+
     for account in teams_json:
         if account_env != account["account"] and account_env != 'all':
             continue
@@ -20,6 +31,8 @@ if __name__ == '__main__':
             continue
 
         print("\naccount: {}".format(account["account"]))
+
+        dashboards = {}
 
         for team in account["teams"]:
             cx_central.set_attributes(account["account"], team["name"])
@@ -35,3 +48,17 @@ if __name__ == '__main__':
             cx_central.flush_apm_services(region=team["region"], key=team["key"])
             cx_central.flush_slo(region=team["region"], key=team["key"])
             cx_central.flush_dashboards(region=team["region"], key=team["key"])
+
+            if enrichment:
+                dashboards.update(cx_central.get_dashboards(
+                    region=team["region"],
+                    key=team["key"])
+                )
+
+        if enrichment:
+            cx_central.send_enrichment(
+                region=cx_api_key_region,
+                key=cx_api_key,
+                dictionary=dashboards,
+                enrichment_file_name="{}-dashboards".format(account_env)
+            )

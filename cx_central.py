@@ -41,7 +41,7 @@ GRPC_DASHBOARD_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardCatal
 GRPC_DASHBOARD_GET_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard"
 
 GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApmService"
-
+GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
 
 def get_gauge_callback(_: CallbackOptions):
 
@@ -301,6 +301,59 @@ def delete_apm_services(region, key, pattern):
             print("{} does not match regex pattern /{}/".format(service_name, pattern))
 
 
+def convert_dict_to_json(dict, value_label, target_label):
+    json_output = ""
+    comma = ""
+    for item in dict:
+        json_output = """%s%s{"%s":"%s","%s":"%s"}""" % (
+            json_output,
+            comma,
+            value_label,
+            item,
+            target_label,
+            dict[item]
+        )
+        comma = ","
+
+    return json_output
+
+def create_e2m(region,
+               key,
+               name,
+               description,
+               query="",
+               severities="",
+               metrics_list={},
+               labels_list={},
+               applications="",
+               subsystems="",
+               permutation=30000):
+
+    labels_json = convert_dict_to_json(labels_list, "targetLabel", "sourceField")
+    metrics_json = convert_dict_to_json(metrics_list, "targetBaseMetricName", "sourceField")
+
+    parameters = """
+    {"e2m": 
+        {"name": "%s",
+        "description": "%s",
+        "metricFields": [%s],
+        "metricLabels": [%s],
+        "logs_query": 
+            {"lucene": "%s",
+            "severityFilters": [%s],
+            "applicationnameFilters": [%s],
+            "subsystemnameFilters": [%s]
+            },
+        "permutations_limit": %d,
+        "type": "E2M_TYPE_LOGS2METRICS"}}
+        """ % (name, description, metrics_json, labels_json, query, severities, applications, subsystems, permutation)
+
+    parameters = parameters.replace(" ", "")
+
+    json_data = call_grpc(region, key, GRPC_E2M_CREATE, parameters)
+    print("{}".format(json_data))
+
+
 def flush_slo(region, key):
 
     labels = {'type': 'slo'}
@@ -342,16 +395,12 @@ def get_dashboards(region, key):
 
 def flush_dashboards(region, key):
 
-    json_data = call_grpc(region, key, GRPC_DASHBOARD_METHOD)
-
-    if not json_data:
-        return
-
-    total_cx_dashboards = len(json_data['items'])
+    dashboards = get_dashboards(region,key)
+    total_cx_dashboards = len(dashboards)
 
     panels_type = {}
-    for dashboard in json_data['items']:
-        parameters = """{"dashboardId":"%s"}""" % (dashboard['id'])
+    for dashboard_id in dashboards:
+        parameters = """{"dashboardId":"%s"}""" % dashboard_id
         dashboard_data = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
 
         if not dashboard_data:

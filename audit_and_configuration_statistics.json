@@ -1,0 +1,777 @@
+{
+  "id": "DYIVBxnNSoGppIHJcBojB",
+  "name": "Audit and Configuration Statistics",
+  "layout": {
+    "sections": [
+      {
+        "id": {
+          "value": "7d57e252-e634-a347-d6af-d1b7f3cce5cb"
+        },
+        "rows": [
+          {
+            "id": {
+              "value": "a1f73b8f-0ea0-60dc-d4a6-aa8eb22b5dc3"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "d607a7b1-4ba7-534b-a3bf-ca2e2d35d3b6"
+                },
+                "title": "Active user (last 7 days)",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "count(count_over_time(count(users_cx_docs_total{coralogix_team=~\"{{team_id}}\"}) by (username)[7d]))"
+                        },
+                        "aggregation": "AGGREGATION_LAST",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "25ec7b55-51df-061a-8d44-a80160ebce31"
+                },
+                "title": "Log queries (lucene)",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(sum_over_time(users_cx_docs_total{action=\"POST:/api/v1/logquery\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                        },
+                        "aggregation": "AGGREGATION_LAST",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "264844f2-6914-61c9-dba8-6b57948d5b58"
+                },
+                "title": "Log queries (dataprime)",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum (sum_over_time(users_cx_docs_total{action=\"api/v1/dataprime/query\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                        },
+                        "aggregation": "AGGREGATION_LAST",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "740d428d-f9c7-2afa-5421-f0bb1de69c40"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "acfed937-17c2-870b-884e-70060431e6c0"
+                },
+                "title": "User logins (past 7 days)",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum by(username, coralogix_team) (sum_over_time(users_cx_docs_total{action=\"com.coralogix.users.v1.UserSettingsService/GetUserSettings\",coralogix_team=~\"{{team_id}}\"} [7d]))"
+                        },
+                        "filters": []
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "#chart"
+                      },
+                      {
+                        "field": "#sum"
+                      },
+                      {
+                        "field": "coralogix_team"
+                      },
+                      {
+                        "field": "username"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "237c742a-56f8-2114-a647-8193779bdb06"
+                },
+                "title": "Number of lucene queries per user (past 7 days)",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum by(action,username,coralogix_team) (sum_over_time(users_cx_docs_total{action=\"POST:/api/v1/logquery\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                        },
+                        "filters": []
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "#chart"
+                      },
+                      {
+                        "field": "coralogix_team"
+                      },
+                      {
+                        "field": "username"
+                      },
+                      {
+                        "field": "#last"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "b2e0eb78-9dce-b3ba-dde1-69f2b21bda3c"
+                },
+                "title": "Number of dataprime queries per user (past 7 days)",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum by(action,username,coralogix_team) (sum_over_time(users_cx_docs_total{action=\"api/v1/dataprime/query\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                        },
+                        "filters": []
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "#chart"
+                      },
+                      {
+                        "field": "coralogix_team"
+                      },
+                      {
+                        "field": "username"
+                      },
+                      {
+                        "field": "#last"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "2fdb4a99-6c78-ab15-7cb5-1580149f0cea"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "8f55b021-6bc0-afc6-ba5a-39d0b58c2870"
+                },
+                "title": "Dataprime queries by user",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum by(query,username,team_name) (sum_over_time(dataprime_usage_cx_docs_total{team_name=~\"{{team_id}}\",username=~\"{{username}}\"} [7d]))"
+                        },
+                        "filters": []
+                      }
+                    },
+                    "resultsPerPage": 20,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "#chart"
+                      },
+                      {
+                        "field": "#last"
+                      },
+                      {
+                        "field": "query"
+                      },
+                      {
+                        "field": "team_name"
+                      },
+                      {
+                        "field": "username"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "options": {
+          "custom": {
+            "name": " Users and Activities",
+            "collapsed": false
+          }
+        }
+      },
+      {
+        "id": {
+          "value": "80dc98f5-ba19-b79b-42e3-27a786f3f539"
+        },
+        "rows": [
+          {
+            "id": {
+              "value": "4edfe0e5-f2a2-5d1f-a648-1c414f1ed7f9"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "aff66262-ae76-2f1c-29f7-5041a72d6be5"
+                },
+                "title": "Most popoular (CX) dashboards",
+                "definition": {
+                  "horizontalBarChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sort_desc(sum(sum_over_time(dashboards_usage_cx_docs_total{}[7d])) by (dashboard_name))"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "dashboard_name"
+                        ]
+                      }
+                    },
+                    "maxBarsPerChart": 24,
+                    "stackDefinition": {
+                      "maxSlicesPerBar": 7
+                    },
+                    "scaleType": "SCALE_TYPE_LINEAR",
+                    "colorsBy": {
+                      "groupBy": {}
+                    },
+                    "unit": "UNIT_UNSPECIFIED",
+                    "displayOnBar": true,
+                    "yAxisViewBy": {
+                      "value": {}
+                    },
+                    "sortBy": "SORT_BY_TYPE_VALUE",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "0c719f7c-2141-6aff-26d0-91bbe6faf77a"
+                },
+                "title": "Dashboard usage by users",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(sum_over_time(dashboards_usage_cx_docs_total{}[7d])) by (username,dashboard_name)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "username",
+                          "dashboard_name"
+                        ]
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": false,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "2270ac3a-b136-0396-f5d6-8fea0451cbcf"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "fb8f6a7b-5b28-ce74-dac2-ac77be77409d"
+                },
+                "title": "Coralogix (custom) dashboards - total",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "e466cc4c-d8ec-30c8-55d0-08d3e74002e6"
+                },
+                "title": "Coralogix (custom) widgets - total",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"})"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "6740db10-9f91-4c05-5b92-ca33983ebaa1"
+                },
+                "title": "Grafana dashboards - total",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_dashboard\"})"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "ef412257-63bd-1c06-4b35-0e45b749e9a1"
+                },
+                "title": "Grafana panels - total",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_panel\"})"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "1c3717d1-1a84-9efd-195c-bee4449b4975"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "d968054f-fda7-847e-e491-44b07736c492"
+                },
+                "title": "distribution by widget type",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"}[1y])) by (widget_type)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "widget_type"
+                        ]
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": true,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "cd382596-06e2-76dd-042b-241fe539da44"
+                },
+                "title": "distribution by widget type",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_panel\"}[1y])) by (panel_type)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "panel_type"
+                        ]
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": true,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "options": {
+          "custom": {
+            "name": "Dashboards",
+            "collapsed": false
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "account",
+      "definition": {
+        "multiSelect": {
+          "selected": [],
+          "source": {
+            "query": {
+              "query": {
+                "metricsQuery": {
+                  "type": {
+                    "labelValue": {
+                      "metricName": {
+                        "stringValue": "cx_configuration"
+                      },
+                      "labelName": {
+                        "stringValue": "account"
+                      },
+                      "labelFilters": []
+                    }
+                  }
+                }
+              },
+              "refreshStrategy": "REFRESH_STRATEGY_UNSPECIFIED",
+              "valueDisplayOptions": {}
+            }
+          },
+          "selection": {
+            "all": {}
+          },
+          "valuesOrderDirection": "ORDER_DIRECTION_ASC",
+          "selectionOptions": {
+            "selectionType": "SELECTION_TYPE_MULTI_ALL"
+          }
+        }
+      },
+      "displayName": "account",
+      "displayType": "VARIABLE_DISPLAY_TYPE_UNSPECIFIED"
+    },
+    {
+      "name": "team_id",
+      "definition": {
+        "multiSelect": {
+          "selected": [],
+          "source": {
+            "query": {
+              "query": {
+                "metricsQuery": {
+                  "type": {
+                    "labelValue": {
+                      "metricName": {
+                        "stringValue": "cx_configuration"
+                      },
+                      "labelName": {
+                        "stringValue": "team_id"
+                      },
+                      "labelFilters": []
+                    }
+                  }
+                }
+              },
+              "refreshStrategy": "REFRESH_STRATEGY_UNSPECIFIED",
+              "valueDisplayOptions": {}
+            }
+          },
+          "selection": {
+            "all": {}
+          },
+          "valuesOrderDirection": "ORDER_DIRECTION_ASC",
+          "selectionOptions": {
+            "selectionType": "SELECTION_TYPE_MULTI_ALL"
+          }
+        }
+      },
+      "displayName": "team_id",
+      "displayType": "VARIABLE_DISPLAY_TYPE_UNSPECIFIED"
+    },
+    {
+      "name": "username",
+      "definition": {
+        "multiSelect": {
+          "selected": [],
+          "source": {
+            "query": {
+              "query": {
+                "metricsQuery": {
+                  "type": {
+                    "labelValue": {
+                      "metricName": {
+                        "stringValue": "dataprime_usage_cx_docs_total"
+                      },
+                      "labelName": {
+                        "stringValue": "username"
+                      },
+                      "labelFilters": []
+                    }
+                  }
+                }
+              },
+              "refreshStrategy": "REFRESH_STRATEGY_UNSPECIFIED",
+              "valueDisplayOptions": {}
+            }
+          },
+          "selection": {
+            "all": {}
+          },
+          "valuesOrderDirection": "ORDER_DIRECTION_ASC",
+          "selectionOptions": {
+            "selectionType": "SELECTION_TYPE_MULTI_ALL"
+          }
+        }
+      },
+      "displayName": "username",
+      "displayType": "VARIABLE_DISPLAY_TYPE_UNSPECIFIED"
+    }
+  ],
+  "filters": [
+    {
+      "source": {
+        "logs": {
+          "operator": {
+            "equals": {
+              "selection": {
+                "list": {
+                  "values": []
+                }
+              }
+            }
+          },
+          "observationField": {
+            "keypath": [
+              "applicationname"
+            ],
+            "scope": "DATASET_SCOPE_LABEL"
+          }
+        }
+      },
+      "enabled": true,
+      "collapsed": false
+    },
+    {
+      "source": {
+        "logs": {
+          "operator": {
+            "equals": {
+              "selection": {
+                "list": {
+                  "values": []
+                }
+              }
+            }
+          },
+          "observationField": {
+            "keypath": [
+              "subsystemname"
+            ],
+            "scope": "DATASET_SCOPE_LABEL"
+          }
+        }
+      },
+      "enabled": true,
+      "collapsed": false
+    }
+  ],
+  "relativeTimeFrame": "604800s",
+  "annotations": [],
+  "off": {}
+}

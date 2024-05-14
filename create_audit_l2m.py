@@ -1,7 +1,7 @@
 
 from os import environ
 
-import cx_central
+from cx_infra import create_e2m
 
 
 if __name__ == '__main__':
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     cx_api_key_region = environ.get('CX_API_KEY_REGION')
 
     if cx_api_key and cx_api_key_region:
-        cx_central.create_e2m(
+        create_e2m(
             region=cx_api_key_region,
             key=cx_api_key,
             name="dashboards_usage",
@@ -24,7 +24,7 @@ if __name__ == '__main__':
             permutation=30000
         )
 
-        cx_central.create_e2m(
+        create_e2m(
             region=cx_api_key_region,
             key=cx_api_key,
             name="Users",
@@ -39,7 +39,7 @@ if __name__ == '__main__':
             permutation=30000
         )
 
-        cx_central.create_e2m(
+        create_e2m(
             region=cx_api_key_region,
             key=cx_api_key,
             name="dataprime_usage",

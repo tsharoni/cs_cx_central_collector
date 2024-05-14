@@ -1,5 +1,5 @@
 
-import cx_central
+import cx_infra
 import json
 from os import environ
 
@@ -19,9 +19,8 @@ if __name__ == '__main__':
         print("\naccount: {}".format(account["account"]))
 
         for team in account["teams"]:
-            cx_central.set_attributes(account["account"], team["name"])
             print("team: {}".format(team["name"]))
-            cx_central.delete_apm_services(
+            cx_infra.delete_apm_services(
                 region=team["region"],
                 key=team["key"],
-                pattern="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+                pattern="unknown_service:java")

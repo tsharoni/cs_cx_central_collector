@@ -2,6 +2,7 @@
 import json
 from os import environ
 
+import cx_infra
 import cx_central
 
 
@@ -50,13 +51,13 @@ if __name__ == '__main__':
             cx_central.flush_dashboards(region=team["region"], key=team["key"])
 
             if enrichment:
-                dashboards.update(cx_central.get_dashboards(
+                dashboards.update(cx_infra.get_dashboards(
                     region=team["region"],
                     key=team["key"])
                 )
 
         if enrichment:
-            cx_central.send_enrichment(
+            cx_infra.send_enrichment(
                 region=cx_api_key_region,
                 key=cx_api_key,
                 dictionary=dashboards,

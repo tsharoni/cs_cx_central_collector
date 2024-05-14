@@ -13,15 +13,7 @@ import re
 
 import subprocess
 
-region_domains = {
-    'usprod1': "coralogix.us",
-    'usprod1-vpc': "coralogix.us",
-    'prod': "coralogix.com",
-    'cx498': "cx498.coralogix.com",
-    'india': "coralogix.in",
-    'eu2': "eu2.coralogix.com",
-    'sg': "coralogixsg.com"
-}
+import cx_infra
 
 coralogix_alerts_url = "https://api.{}/api/v1/external/alerts"
 coralogix_parsing_url = "https://api.{}/api/v1/external/rules"
@@ -80,54 +72,6 @@ attributes = {}
 simulate = False
 
 
-def call_http_extended(url, key, method="GET", data={}, files={}):
-    try:
-        headers = {'Authorization': 'Bearer {}'.format(key)}
-        response = requests.request(method, url, headers=headers, data=data,files=files)
-        return response.text
-    except:
-        print('http error')
-
-
-def call_grpc(region, key, method, params=None):
-
-    server_address = coralogix_grpc_url.format(region_domains[region])
-
-    # Replace with your actual Bearer token
-    bearer_token = key
-
-    # Replace with your gRPC service and method
-    grpc_service_method = method
-
-    # Build the grpcurl command
-    grpcurl_command = [
-        'grpcurl',
-        '-H', f'Authorization: Bearer {bearer_token}']
-    if params:
-        grpcurl_command.append('-d')
-        grpcurl_command.append(f'{params}')
-
-    grpcurl_command.append(server_address)
-    grpcurl_command.append(grpc_service_method)
-
-    error = ""
-    try:
-        # Launch the subprocess
-        process = subprocess.Popen(grpcurl_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        # Wait for the subprocess to finish and get the output and error
-        output, error = process.communicate()
-
-        # Print the output and error
-        json_data = json.loads(output)
-
-        return json_data
-        # print("Return Code:", return_code)
-
-    except Exception as e:
-        print("Error:{}{}".format(e, error))
-
-
 def flush_results(labels, result):
 
     global value
@@ -146,6 +90,7 @@ def flush_results(labels, result):
 
     if not simulate:
         counter.add(result, attributes)
+
 
 def set_attributes(account, team_id):
     global attributes
@@ -166,7 +111,7 @@ def flush_alerts(region, key):
     active = 0
     alerts_type = {}
 
-    source_alerts_json = json.loads(call_http_extended(coralogix_alerts_url.format(region_domains[region]), key))
+    source_alerts_json = json.loads(cx_infra.call_http_extended(coralogix_alerts_url.format(cx_infra.region_domains[region]), key))
 
     for alert in source_alerts_json['alerts']:
         total += 1
@@ -198,7 +143,7 @@ def flush_webhooks(region, key):
 
     labels = {'type': 'webhook'}
     total_webhook = 0
-    webhooks = json.loads(call_http_extended(coralogix_webhook_url.format(region_domains[region], ""), key))
+    webhooks = json.loads(cx_infra.call_http_extended(coralogix_webhook_url.format(cx_infra.region_domains[region], ""), key))
 
     webhook_types = {}
     for webhook in webhooks:
@@ -219,7 +164,7 @@ def flush_webhooks(region, key):
 def flush_e2m(region, key):
 
     labels = {'type': 'e2m'}
-    json_data = call_grpc(region, key, GRPC_E2M_METHOD)
+    json_data = cx_infra.call_grpc(region, key, GRPC_E2M_METHOD)
 
     if not json_data:
         return
@@ -242,7 +187,7 @@ def flush_e2m(region, key):
 def flush_recording_rule(region, key):
 
     labels = {'type': 'recording_rule'}
-    json_data = call_grpc(region, key, GRPC_RECORDING_RULE_METHOD)
+    json_data = cx_infra.call_grpc(region, key, GRPC_RECORDING_RULE_METHOD)
 
     if json_data:
         flush_results(labels, len(json_data['ruleGroups']))
@@ -252,7 +197,7 @@ def flush_recording_rule(region, key):
 def flush_apm_services(region, key):
 
     labels = {'type': 'apm'}
-    json_data = call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
+    json_data = cx_infra.call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
 
     if not json_data:
         return
@@ -281,83 +226,10 @@ def flush_apm_services(region, key):
         len(json_data['services']), services_type, services))
 
 
-def delete_apm_services(region, key, pattern):
-
-    pat = re.compile(r"{}".format(pattern))
-
-    json_data = call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
-
-    if not json_data:
-        return
-
-    for service in json_data['services']:
-        service_name = service['name']
-        if re.fullmatch(pat, service_name):
-            print("{} matches regex pattern /{}/ -  deleting!".format(service_name, pattern))
-            parameters = """{"id":"%s"}""" % (service['id'])
-            json_data = call_grpc(region, key, GRPC_APM_DELETE, parameters)
-            continue
-        else:
-            print("{} does not match regex pattern /{}/".format(service_name, pattern))
-
-
-def convert_dict_to_json(dict, value_label, target_label):
-    json_output = ""
-    comma = ""
-    for item in dict:
-        json_output = """%s%s{"%s":"%s","%s":"%s"}""" % (
-            json_output,
-            comma,
-            value_label,
-            item,
-            target_label,
-            dict[item]
-        )
-        comma = ","
-
-    return json_output
-
-def create_e2m(region,
-               key,
-               name,
-               description,
-               query="",
-               severities="",
-               metrics_list={},
-               labels_list={},
-               applications="",
-               subsystems="",
-               permutation=30000):
-
-    labels_json = convert_dict_to_json(labels_list, "targetLabel", "sourceField")
-    metrics_json = convert_dict_to_json(metrics_list, "targetBaseMetricName", "sourceField")
-
-    parameters = """
-    {"e2m": 
-        {"name": "%s",
-        "description": "%s",
-        "metricFields": [%s],
-        "metricLabels": [%s],
-        "logs_query": 
-            {"lucene": "%s",
-            "severityFilters": [%s],
-            "applicationnameFilters": [%s],
-            "subsystemnameFilters": [%s]
-            },
-        "permutations_limit": %d,
-        "type": "E2M_TYPE_LOGS2METRICS"}}
-        """ % (name, description, metrics_json, labels_json, query, severities, applications, subsystems, permutation)
-
-    parameters = parameters.replace(" ", "")
-
-    json_data = call_grpc(region, key, GRPC_E2M_CREATE, parameters)
-    print("{}".format(json_data))
-
-
 def flush_slo(region, key):
 
     labels = {'type': 'slo'}
-    json_data = call_grpc(region, key, GRPC_SLO_METHOD)
+    json_data = cx_infra.call_grpc(region, key, GRPC_SLO_METHOD)
 
     if not json_data:
         return
@@ -377,31 +249,15 @@ def flush_slo(region, key):
     print("total slo = {} {}".format(len(json_data['slos']), slos))
 
 
-def get_dashboards(region, key):
-
-    dashboards = {}
-    json_data = call_grpc(region, key, GRPC_DASHBOARD_METHOD)
-
-    if not json_data:
-        return
-
-    for dashboard in json_data['items']:
-        dashboards[dashboard['id']] = dashboard['name']
-
-    print('number of dashboard added [{}]'.format(len(dashboards)))
-
-    return dashboards
-
-
 def flush_dashboards(region, key):
 
-    dashboards = get_dashboards(region,key)
+    dashboards = cx_infra.get_dashboards(region, key)
     total_cx_dashboards = len(dashboards)
 
     panels_type = {}
     for dashboard_id in dashboards:
         parameters = """{"dashboardId":"%s"}""" % dashboard_id
-        dashboard_data = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
+        dashboard_data = cx_infra.call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
 
         if not dashboard_data:
             continue
@@ -430,7 +286,7 @@ def flush_dashboards(region, key):
 def flush_tco(region, key):
 
     labels = {'type': 'tco_policy'}
-    json_data = call_grpc(region, key, GRPC_TCO_POLICIES)
+    json_data = cx_infra.call_grpc(region, key, GRPC_TCO_POLICIES)
 
     if not json_data:
         return
@@ -471,7 +327,7 @@ def flush_tco_overrides(region, key):
 
     labels = {'type': 'tco_overrides'}
 
-    overrides = json.loads(call_http_extended(coralogix_tco_overrides_url.format(region_domains[region]), key))
+    overrides = json.loads(cx_infra.call_http_extended(coralogix_tco_overrides_url.format(cx_infra.region_domains[region]), key))
 
     flush_results(labels, len(overrides))
 
@@ -482,7 +338,7 @@ def flush_rules(region, key):
 
     labels = {'type': 'rules_group'}
 
-    rules = json.loads(call_http_extended(coralogix_parsing_url.format(region_domains[region]), key))
+    rules = json.loads(cx_infra.call_http_extended(coralogix_parsing_url.format(cx_infra.region_domains[region]), key))
 
     total_rules_group = 0
     total_rules = 0
@@ -520,11 +376,11 @@ def flush_grafana(region, key):
     total_grafana_panels = 0
     total_grafana_folders = 0
     panels_type = {}
-    dashboards = json.loads(call_http_extended(coralogix_grafana_url.format(region_domains[region]), key))
+    dashboards = json.loads(cx_infra.call_http_extended(coralogix_grafana_url.format(cx_infra.region_domains[region]), key))
 
     for dashboard in dashboards:
-        dashboards_panels = json.loads(call_http_extended(
-            coralogix_grafana_panels_url.format(region_domains[region], dashboard['uid']),
+        dashboards_panels = json.loads(cx_infra.call_http_extended(
+            coralogix_grafana_panels_url.format(cx_infra.region_domains[region], dashboard['uid']),
             key)
         )
         try:
@@ -556,58 +412,4 @@ def flush_grafana(region, key):
         total_grafana_panels,
         panels_type)
     )
-
-
-def send_enrichment(region, key, dictionary, enrichment_file_name):
-
-    filename = "{}.csv".format(enrichment_file_name)
-    f = open(filename, 'w')
-
-    for item in dictionary:
-        # replacing comma with semicolon
-        item_value = dictionary[item].replace(',', ';')
-        f.write("{},{}\r\n".format(item, item_value))
-
-    f.close()
-
-    payload = {
-            "name": "{}".format(enrichment_file_name),
-            "description": "{}".format(enrichment_file_name)
-    }
-
-    files = {
-            "file": (filename, open(filename,  'rb'))
-    }
-
-    enrichment_url = coralogix_custom_enrichment_url.format(region_domains[region],'','')
-    # check for existing custom enrichment
-    response = json.loads(call_http_extended(
-        enrichment_url,
-        key
-    ))
-
-    enrichment_id = None
-    for custom_enrichment in response:
-        if custom_enrichment['name'] == enrichment_file_name:
-            enrichment_id = custom_enrichment['id']
-            break
-
-    if enrichment_id:
-        # Update existing
-        method = 'PUT'
-        enrichment_url = coralogix_custom_enrichment_url.format(region_domains[region], '/', enrichment_id)
-    else:
-        # Create a new one
-        method = 'POST'
-
-    response = json.loads(call_http_extended(
-        url=enrichment_url,
-        key=key,
-        method=method,
-        data=payload,
-        files=files
-    ))
-    print(response)
-
-    files['file'][1].close()
 

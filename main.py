@@ -5,7 +5,6 @@ from os import environ
 import cx_infra
 import cx_central
 
-
 if __name__ == '__main__':
 
     #cx_central.set_simulate()
@@ -39,6 +38,7 @@ if __name__ == '__main__':
             cx_central.set_attributes(account["account"], team["name"])
             print("team: {}".format(team["name"]))
             cx_central.flush_alerts(region=team["region"], key=team["key"])
+            continue
             cx_central.flush_webhooks(region=team["region"], key=team["key"])
             cx_central.flush_rules(region=team["region"], key=team["key"])
             cx_central.flush_tco_overrides(region=team["region"], key=team["key"])

@@ -1,19 +1,9 @@
 
-import requests
 import json
 from os import environ
-from opentelemetry import metrics
-from opentelemetry.metrics import Observation, CallbackOptions
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-
-import re
-
-import subprocess
 
 import cx_infra
+import cx_otel
 
 coralogix_alerts_url = "https://api.{}/api/v1/external/alerts"
 coralogix_parsing_url = "https://api.{}/api/v1/external/rules"
@@ -35,72 +25,18 @@ GRPC_DASHBOARD_GET_METHOD = "com.coralogixapis.dashboards.v1.services.Dashboards
 GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApmService"
 GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
 
-def get_gauge_callback(_: CallbackOptions):
+provider = cx_otel.CoralogixOtel(environ.get('CX_ENDPOINT'), environ.get("CX_TOKEN"))
+cx_configuration = cx_otel.CoralogixOtelGauge("cx_configuration")
 
-    yield Observation(value, attributes)
-
-
-# define the OTEL metrics exporter. Need to define the CX_ENDPOINT and CX_TOKEN environment variables
-reader = PeriodicExportingMetricReader(
-    OTLPMetricExporter(
-        endpoint=environ.get('CX_ENDPOINT'),
-        headers=[('authorization', "Bearer " + environ.get("CX_TOKEN"))])
-)
-
-resource = Resource(attributes={
-    SERVICE_NAME: "counter-metrics"
-})
-
-provider = MeterProvider(resource=resource, metric_readers=[reader])
-
-metrics.set_meter_provider(provider)
-
-gauge = metrics.get_meter(__name__).create_observable_gauge(
-    callbacks=[get_gauge_callback],
-    name="cx_configuration",
-    description="cx_configuration",
-    unit=""
-    )
-
-counter = metrics.get_meter(__name__).create_counter(
-    name="total_configuration_items",
-    description="A simple configuration counter"
-)
-
-value = 0
-attributes = {}
 simulate = False
 
 
-def flush_results(labels, result):
-
-    global value
-    global attributes
-    global simulate
-
-    attributes = attributes | labels
-
-    value = result
-    print('flushing labels:{} value: {}'.format(attributes, value))
-    if not simulate:
-        provider.force_flush()
-
-    for label in labels:
-        attributes.pop(label)
-
-    if not simulate:
-        counter.add(result, attributes)
-
-
 def set_attributes(account, team_id):
-    global attributes
-    attributes['account'] = account
-    attributes['team_id'] = team_id
+    cx_configuration.set_meta_attributes({'account': account, 'team_id': team_id})
 
 
 def set_simulate():
-    global simulate
-    simulate = True
+    cx_configuration.set_simulate()
 
 
 def flush_alerts(region, key):
@@ -131,9 +67,9 @@ def flush_alerts(region, key):
     for alert_type in alerts_type:
         labels["alert_type"] = alert_type
         labels["active"] = False
-        flush_results(labels, alerts_type[alert_type]['total']-alerts_type[alert_type]['active'])
+        cx_configuration.flush_results(provider, labels, alerts_type[alert_type]['total']-alerts_type[alert_type]['active'])
         labels["active"] = True
-        flush_results(labels, alerts_type[alert_type]['active'])
+        cx_configuration.flush_results(provider, labels, alerts_type[alert_type]['active'])
         labels.pop("active")
 
     print('total alerts = {}; active={} {}'.format(total, active, alerts_type))
@@ -156,7 +92,7 @@ def flush_webhooks(region, key):
 
     for webhook_type in webhook_types:
         labels["webhook_type"] = webhook_type
-        flush_results(labels, webhook_types[webhook_type])
+        cx_configuration.flush_results(provider, labels, webhook_types[webhook_type])
 
     print('total webhooks = {} {}'.format(total_webhook, webhook_types))
 
@@ -179,7 +115,7 @@ def flush_e2m(region, key):
 
     for e2m_type in e2m_types:
         labels['e2m_type'] = e2m_type
-        flush_results(labels, e2m_types[e2m_type])
+        cx_configuration.flush_results(provider, labels, e2m_types[e2m_type])
 
     print("total e2m = {} {}".format(len(json_data['e2m']), e2m_types))
 
@@ -190,7 +126,7 @@ def flush_recording_rule(region, key):
     json_data = cx_infra.call_grpc(region, key, GRPC_RECORDING_RULE_METHOD)
 
     if json_data:
-        flush_results(labels, len(json_data['ruleGroups']))
+        cx_configuration.flush_results(provider, labels, len(json_data['ruleGroups']))
         print("total recording rule = {}".format(len(json_data['ruleGroups'])))
 
 
@@ -217,10 +153,10 @@ def flush_apm_services(region, key):
 
     for service in services:
         labels["technology"] = service
-        flush_results(labels, services[service])
+        cx_configuration.flush_results(provider, labels, services[service])
     for service_type in services_type:
         labels["service_type"] = service_type
-        flush_results(labels, services_type[service_type])
+        cx_configuration.flush_results(provider, labels, services_type[service_type])
 
     print("total APM services = {}, Type: {}, Technology: {}".format(
         len(json_data['services']), services_type, services))
@@ -244,7 +180,7 @@ def flush_slo(region, key):
 
     for slo in slos:
         labels['slo_type'] = slo
-        flush_results(labels, slos[slo])
+        cx_configuration.flush_results(provider, labels, slos[slo])
 
     print("total slo = {} {}".format(len(json_data['slos']), slos))
 
@@ -252,6 +188,10 @@ def flush_slo(region, key):
 def flush_dashboards(region, key):
 
     dashboards = cx_infra.get_dashboards(region, key)
+    if not dashboards:
+        print('Failed to retrieve dashboards')
+        return
+
     total_cx_dashboards = len(dashboards)
 
     panels_type = {}
@@ -274,11 +214,11 @@ def flush_dashboards(region, key):
                         panels_type[widget_type] = 1
 
     labels = {'type': 'cx_dashboard'}
-    flush_results(labels, total_cx_dashboards)
+    cx_configuration.flush_results(provider, labels, total_cx_dashboards)
     labels['type'] = 'cx_widget'
     for panel_type in panels_type:
         labels['widget_type'] = panel_type
-        flush_results(labels, panels_type[panel_type])
+        cx_configuration.flush_results(provider, labels, panels_type[panel_type])
 
     print("total cx dashboard = {}".format(total_cx_dashboards))
 
@@ -313,11 +253,16 @@ def flush_tco(region, key):
         for priority in tco_policies[policy_type]:
             labels['priority'] = priority
             labels['enabled'] = False
-            flush_results(labels,
-                          tco_policies[policy_type][priority]['total'] -
-                          tco_policies[policy_type][priority]['enabled'])
+            cx_configuration.flush_results(
+                provider,
+                labels,
+                tco_policies[policy_type][priority]['total'] -
+                tco_policies[policy_type][priority]['enabled'])
             labels['enabled'] = True
-            flush_results(labels, tco_policies[policy_type][priority]['enabled'])
+            cx_configuration.flush_results(
+                provider,
+                labels,
+                tco_policies[policy_type][priority]['enabled'])
             labels.pop('enabled')
 
     print(tco_policies)
@@ -329,7 +274,7 @@ def flush_tco_overrides(region, key):
 
     overrides = json.loads(cx_infra.call_http_extended(coralogix_tco_overrides_url.format(cx_infra.region_domains[region]), key))
 
-    flush_results(labels, len(overrides))
+    cx_configuration.flush_results(provider, labels, len(overrides))
 
     print('total tco overrides = {}'.format(len(overrides)))
 
@@ -353,13 +298,13 @@ def flush_rules(region, key):
                 else:
                     rules_type[rule['type']] = 1
 
-    flush_results(labels, total_rules_group)
+    cx_configuration.flush_results(provider, labels, total_rules_group)
 
     labels["type"] = "parsing_rule"
 
     for rule_type in rules_type:
         labels["parsing_rule_type"] = rule_type
-        flush_results(labels, rules_type[rule_type])
+        cx_configuration.flush_results(provider, labels, rules_type[rule_type])
 
     print('total rules groups = {}; total rules = {} {}'.format(
         total_rules_group,
@@ -395,16 +340,16 @@ def flush_grafana(region, key):
         except Exception as e:
             total_grafana_folders += 1
 
-    flush_results(labels, total_grafana_folders)
+    cx_configuration.flush_results(provider, labels, total_grafana_folders)
 
     labels["type"] = "grafana_dashboard"
-    flush_results(labels, total_grafana_dashboards)
+    cx_configuration.flush_results(provider, labels, total_grafana_dashboards)
 
     labels["type"] = "grafana_panel"
 
     for panel_type in panels_type:
         labels["panel_type"] = panel_type
-        flush_results(labels, panels_type[panel_type])
+        cx_configuration.flush_results(provider, labels, panels_type[panel_type])
 
     print("total grafana folders = {}; dashboards = {}; panels = {} {}".format(
         total_grafana_folders,

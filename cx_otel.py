@@ -68,12 +68,17 @@ class CoralogixOtelCounter:
 
         self.value = 0
         self.attributes = {}
+        self.simulate = False
+
+    def set_simulate(self):
+        self.simulate = True
 
     def counter_add(self, labels, result):
         self.attributes = self.attributes | labels
         self.value = result
         print('Counter: flushing labels:{} value: {}'.format(self.attributes, self.value))
-        self.counter.add(self.value, self.attributes)
+        if not self.simulate:
+            self.counter.add(self.value, self.attributes)
 
         for label in labels:
             self.attributes.pop(label)

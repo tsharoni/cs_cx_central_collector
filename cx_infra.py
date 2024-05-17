@@ -165,7 +165,7 @@ def get_dashboards(region, key):
     json_data = call_grpc(region, key, GRPC_DASHBOARD_METHOD)
 
     if not json_data:
-        return
+        return {}
 
     for dashboard in json_data['items']:
         dashboards[dashboard['id']] = dashboard['name']

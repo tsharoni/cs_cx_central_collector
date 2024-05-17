@@ -38,7 +38,6 @@ if __name__ == '__main__':
             cx_central.set_attributes(account["account"], team["name"])
             print("team: {}".format(team["name"]))
             cx_central.flush_alerts(region=team["region"], key=team["key"])
-            continue
             cx_central.flush_webhooks(region=team["region"], key=team["key"])
             cx_central.flush_rules(region=team["region"], key=team["key"])
             cx_central.flush_tco_overrides(region=team["region"], key=team["key"])
@@ -56,7 +55,7 @@ if __name__ == '__main__':
                     key=team["key"])
                 )
 
-        if enrichment:
+        if enrichment and len(dashboards) > 0:
             cx_infra.send_enrichment(
                 region=cx_api_key_region,
                 key=cx_api_key,

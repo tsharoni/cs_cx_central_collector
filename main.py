@@ -7,8 +7,6 @@ import cx_central
 
 if __name__ == '__main__':
 
-    #cx_central.set_simulate()
-
     f = open('teams.json')
     teams_json = json.load(f)
 

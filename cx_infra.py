@@ -175,6 +175,67 @@ def get_dashboards(region, key):
     return dashboards
 
 
+def get_dashboard_widgets(region, key, dashboard_id):
+
+    parameters = """{"dashboardId":"%s"}""" % dashboard_id
+    dashboard_data = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
+    return dashboard_data
+
+
+def get_e2m(region, key):
+    json_data = call_grpc(region, key, GRPC_E2M_METHOD)
+    return json_data
+
+
+def get_recording_rules(region, key):
+
+    json_data = call_grpc(region, key, GRPC_RECORDING_RULE_METHOD)
+    return json_data
+
+
+def get_apm_services(region, key):
+
+    json_data = call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
+    return json_data
+
+
+def get_slo(region, key):
+
+    json_data = call_grpc(region, key, GRPC_SLO_METHOD)
+    return json_data
+
+
+def get_tco(region, key):
+
+    json_data = call_grpc(region, key, GRPC_TCO_POLICIES)
+    return json_data
+
+
+def get_tco_overides(region, key):
+    return json.loads(call_http_extended(coralogix_tco_overrides_url.format(region_domains[region]), key))
+
+
+def get_alerts(region, key):
+    return json.loads(call_http_extended(coralogix_alerts_url.format(region_domains[region]), key))
+
+
+def get_rules(region, key):
+    return json.loads(call_http_extended(coralogix_parsing_url.format(region_domains[region]), key))
+
+
+def get_grafana_dashboards(region, key):
+    return json.loads(call_http_extended(coralogix_grafana_url.format(region_domains[region]), key))
+
+
+def get_grafana_dashboard_widgets(region, key, dashboard_id):
+    return json.loads(call_http_extended(
+        coralogix_grafana_panels_url.format(region_domains[region], dashboard_id),
+        key))
+
+def get_webhooks(region, key):
+    return json.loads(call_http_extended(coralogix_webhook_url.format(region_domains[region],""), key))
+
+
 def send_enrichment(region, key, dictionary, enrichment_file_name):
 
     filename = "{}.csv".format(enrichment_file_name)

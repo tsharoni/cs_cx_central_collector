@@ -5,26 +5,6 @@ from os import environ
 import cx_infra
 import cx_otel
 
-coralogix_alerts_url = "https://api.{}/api/v1/external/alerts"
-coralogix_parsing_url = "https://api.{}/api/v1/external/rules"
-coralogix_webhook_url = "https://api.{}/api/v1/external/integrations/{}"
-coralogix_grafana_url = "https://ng-api-http.{}/grafana/api/search"
-coralogix_grafana_panels_url = "https://ng-api-http.{}/grafana/api/dashboards/uid/{}"
-coralogix_tco_overrides_url = "https://api.{}/api/v1/external/tco/overrides"
-coralogix_custom_enrichment_url = "https://webapi.{}/api/v1/external/custom-enrichments{}{}"
-coralogix_grpc_url = "ng-api-grpc.{}:443"
-
-GRPC_E2M_METHOD = "com.coralogixapis.events2metrics.v2.Events2MetricService.ListE2M"
-GRPC_RECORDING_RULE_METHOD = "rule_manager.groups.RuleGroups.List"
-GRPC_APM_SERVICES_METHOD = "com.coralogixapis.apm.services.v1.ApmServiceService/ListApmServices"
-GRPC_SLO_METHOD = "com.coralogixapis.apm.services.v1.ServiceSloService/ListServiceSlos"
-GRPC_TCO_POLICIES = "com.coralogix.quota.v1.PoliciesService.GetCompanyPolicies"
-GRPC_DASHBOARD_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardCatalogService/GetDashboardCatalog"
-GRPC_DASHBOARD_GET_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard"
-
-GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApmService"
-GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
-
 provider = cx_otel.CoralogixOtel(environ.get('CX_ENDPOINT'), environ.get("CX_TOKEN"))
 cx_configuration = cx_otel.CoralogixOtelGauge("cx_configuration")
 
@@ -47,7 +27,7 @@ def flush_alerts(region, key):
     active = 0
     alerts_type = {}
 
-    source_alerts_json = json.loads(cx_infra.call_http_extended(coralogix_alerts_url.format(cx_infra.region_domains[region]), key))
+    source_alerts_json = cx_infra.get_alerts(region, key)
 
     for alert in source_alerts_json['alerts']:
         total += 1
@@ -79,7 +59,7 @@ def flush_webhooks(region, key):
 
     labels = {'type': 'webhook'}
     total_webhook = 0
-    webhooks = json.loads(cx_infra.call_http_extended(coralogix_webhook_url.format(cx_infra.region_domains[region], ""), key))
+    webhooks = cx_infra.get_webhooks(region, key)
 
     webhook_types = {}
     for webhook in webhooks:
@@ -100,7 +80,7 @@ def flush_webhooks(region, key):
 def flush_e2m(region, key):
 
     labels = {'type': 'e2m'}
-    json_data = cx_infra.call_grpc(region, key, GRPC_E2M_METHOD)
+    json_data = cx_infra.get_e2m(region, key)
 
     if not json_data:
         return
@@ -123,7 +103,7 @@ def flush_e2m(region, key):
 def flush_recording_rule(region, key):
 
     labels = {'type': 'recording_rule'}
-    json_data = cx_infra.call_grpc(region, key, GRPC_RECORDING_RULE_METHOD)
+    json_data = cx_infra.get_recording_rules(region, key)
 
     if json_data:
         cx_configuration.flush_results(provider, labels, len(json_data['ruleGroups']))
@@ -133,7 +113,7 @@ def flush_recording_rule(region, key):
 def flush_apm_services(region, key):
 
     labels = {'type': 'apm'}
-    json_data = cx_infra.call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
+    json_data = cx_infra.get_apm_services(region, key)
 
     if not json_data:
         return
@@ -165,7 +145,7 @@ def flush_apm_services(region, key):
 def flush_slo(region, key):
 
     labels = {'type': 'slo'}
-    json_data = cx_infra.call_grpc(region, key, GRPC_SLO_METHOD)
+    json_data = cx_infra.get_slo(region, key)
 
     if not json_data:
         return
@@ -196,8 +176,7 @@ def flush_dashboards(region, key):
 
     panels_type = {}
     for dashboard_id in dashboards:
-        parameters = """{"dashboardId":"%s"}""" % dashboard_id
-        dashboard_data = cx_infra.call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
+        dashboard_data = cx_infra.get_dashboard_widgets(region, key, dashboard_id)
 
         if not dashboard_data:
             continue
@@ -226,7 +205,7 @@ def flush_dashboards(region, key):
 def flush_tco(region, key):
 
     labels = {'type': 'tco_policy'}
-    json_data = cx_infra.call_grpc(region, key, GRPC_TCO_POLICIES)
+    json_data = cx_infra.get_tco(region, key)
 
     if not json_data:
         return
@@ -272,7 +251,7 @@ def flush_tco_overrides(region, key):
 
     labels = {'type': 'tco_overrides'}
 
-    overrides = json.loads(cx_infra.call_http_extended(coralogix_tco_overrides_url.format(cx_infra.region_domains[region]), key))
+    overrides = cx_infra.get_tco_overides(region, key)
 
     cx_configuration.flush_results(provider, labels, len(overrides))
 
@@ -283,7 +262,7 @@ def flush_rules(region, key):
 
     labels = {'type': 'rules_group'}
 
-    rules = json.loads(cx_infra.call_http_extended(coralogix_parsing_url.format(cx_infra.region_domains[region]), key))
+    rules = cx_infra.get_rules(region, key)
 
     total_rules_group = 0
     total_rules = 0
@@ -321,13 +300,10 @@ def flush_grafana(region, key):
     total_grafana_panels = 0
     total_grafana_folders = 0
     panels_type = {}
-    dashboards = json.loads(cx_infra.call_http_extended(coralogix_grafana_url.format(cx_infra.region_domains[region]), key))
+    dashboards = cx_infra.get_grafana_dashboards(region, key)
 
     for dashboard in dashboards:
-        dashboards_panels = json.loads(cx_infra.call_http_extended(
-            coralogix_grafana_panels_url.format(cx_infra.region_domains[region], dashboard['uid']),
-            key)
-        )
+        dashboards_panels = cx_infra.get_grafana_dashboard_widgets(region, key, dashboard['uid'])
         try:
             for dashboard_panels in dashboards_panels['dashboard']['panels']:
                 if dashboard_panels['type'] in panels_type:

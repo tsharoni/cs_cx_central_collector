@@ -11,7 +11,7 @@ if __name__ == '__main__':
         environ.get('CX_ENDPOINT'),
         environ.get("CX_TOKEN"))
 
-    # set 2 gauge
+    # set 2 gauges
     guage1 = cx_otel.CoralogixOtelGauge('Guage1')
     guage2 = cx_otel.CoralogixOtelGauge('Gauge2')
 

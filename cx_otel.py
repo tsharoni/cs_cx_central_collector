@@ -1,3 +1,5 @@
+from os import environ
+
 from opentelemetry import metrics
 from opentelemetry.metrics import Observation, CallbackOptions
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
@@ -5,6 +7,7 @@ from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
+simulate = environ.get("simulate")
 
 class CoralogixOtel:
     def __init__(self, endpoint, token):
@@ -39,16 +42,12 @@ class CoralogixOtelGauge:
 
         self.value = 0
         self.attributes = {}
-        self.simulate = False
-
-    def set_simulate(self):
-        self.simulate = True
 
     def flush_results(self, cx_otel, labels, result):
         self.attributes = self.attributes | labels
         self.value = result
         print('Gauge: flushing labels:{} value: {}'.format(self.attributes, self.value))
-        if not self.simulate:
+        if (not simulate) or (simulate and simulate != '1' and simulate.lower() != 'true'):
             cx_otel.provider.force_flush()
 
         for label in labels:
@@ -68,16 +67,12 @@ class CoralogixOtelCounter:
 
         self.value = 0
         self.attributes = {}
-        self.simulate = False
-
-    def set_simulate(self):
-        self.simulate = True
 
     def counter_add(self, labels, result):
         self.attributes = self.attributes | labels
         self.value = result
         print('Counter: flushing labels:{} value: {}'.format(self.attributes, self.value))
-        if not self.simulate:
+        if simulate and simulate != 1 and simulate.lower != 'true':
             self.counter.add(self.value, self.attributes)
 
         for label in labels:

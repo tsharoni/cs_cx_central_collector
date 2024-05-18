@@ -1,5 +1,4 @@
 
-import json
 from os import environ
 
 import cx_infra
@@ -13,10 +12,6 @@ simulate = False
 
 def set_attributes(account, team_id):
     cx_configuration.set_meta_attributes({'account': account, 'team_id': team_id})
-
-
-def set_simulate():
-    cx_configuration.set_simulate()
 
 
 def flush_alerts(region, key):

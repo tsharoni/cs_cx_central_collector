@@ -1,5 +1,5 @@
 {
-  "id": "DYIVBxnNSoGppIHJcBojB",
+  "id": "87bn35VKAWm7onIMflAwy",
   "name": "Audit and Configuration Statistics",
   "layout": {
     "sections": [
@@ -202,7 +202,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum by(action,username,coralogix_team) (sum_over_time(users_cx_docs_total{action=\"api/v1/dataprime/query\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                          "value": "sum by(action,username,coralogix_team) (sum_over_time(dataprime_usage_cx_docs_total{coralogix_team=~\"{{team_id}}\"} [7d]))"
                         },
                         "filters": []
                       }
@@ -211,7 +211,8 @@
                     "rowStyle": "ROW_STYLE_UNSPECIFIED",
                     "columns": [
                       {
-                        "field": "#chart"
+                        "field": "#chart",
+                        "width": 99
                       },
                       {
                         "field": "coralogix_team"
@@ -221,6 +222,9 @@
                       },
                       {
                         "field": "#last"
+                      },
+                      {
+                        "field": "action"
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
@@ -393,9 +397,9 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})"
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})[1y])"
                         },
-                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "aggregation": "AGGREGATION_LAST",
                         "filters": []
                       }
                     },
@@ -425,7 +429,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"})"
+                          "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"}[1y])) by (widget_type))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
                         "filters": []
@@ -457,7 +461,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_dashboard\"})"
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_dashboard\"}[1y]))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
                         "filters": []
@@ -489,9 +493,9 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_panel\"})"
+                          "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_panel\"}[1y])) by (panel_type))"
                         },
-                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "aggregation": "AGGREGATION_LAST",
                         "filters": []
                       }
                     },
@@ -601,6 +605,301 @@
         "options": {
           "custom": {
             "name": "Dashboards",
+            "collapsed": false
+          }
+        }
+      },
+      {
+        "id": {
+          "value": "195524cc-9e0d-c979-9dd2-15e4b3e8d778"
+        },
+        "rows": [
+          {
+            "id": {
+              "value": "cc6d0153-c06f-f6f7-cae8-af4ea915d24c"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "9f198a44-d0af-7d0b-941a-17f31dda4648"
+                },
+                "title": "Alerts configured",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"alert\"}[1y])) by (alert_type))"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "a524e6e3-f160-25bc-b737-ed01da2c98dd"
+                },
+                "title": "Active Alerts",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"alert\",active=\"true\"}[1y])) by (alert_type))"
+                        },
+                        "aggregation": "AGGREGATION_LAST",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "6246aa85-2aa8-7a2f-1204-a4937f7aa10a"
+                },
+                "title": "Webhooks configured",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"webhook\"}[1y])) by (webhook_type))"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "83fb49fd-91f7-64b2-b8d2-c43907e4c81a"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "2ede195d-a3bb-c62f-ecca-600db7192613"
+                },
+                "title": "Distribution by alert type ",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"alert\"}[1y])) by (alert_type)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "alert_type"
+                        ]
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": true,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "7237b42d-40de-5acd-468f-569e67703edd"
+                },
+                "title": "Distribution by webhook type ",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"webhook\"}[1y])) by (webhook_type)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "webhook_type"
+                        ]
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": true,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "options": {
+          "custom": {
+            "name": "Alerts and Webhooks",
+            "collapsed": false
+          }
+        }
+      },
+      {
+        "id": {
+          "value": "ef3bcfc2-f79f-c2e9-4d91-99301ac4eb94"
+        },
+        "rows": [
+          {
+            "id": {
+              "value": "4e518cae-9776-6fb8-c7d7-4f0892f376b2"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "db0d3b2e-0acb-a9b5-1ee5-df87cb2c019b"
+                },
+                "title": "Number of services identified",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"apm\"}[1y])) by (service_type))"
+                        },
+                        "aggregation": "AGGREGATION_UNSPECIFIED",
+                        "filters": []
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "5427aa3d-445b-1a6e-a4cb-73868a7aeb86"
+                },
+                "title": "distribution by service type",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"apm\"}[1y])) by (service_type)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "service_type"
+                        ]
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": true,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "options": {
+          "custom": {
+            "name": "APM",
             "collapsed": false
           }
         }
@@ -723,54 +1022,7 @@
       "displayType": "VARIABLE_DISPLAY_TYPE_UNSPECIFIED"
     }
   ],
-  "filters": [
-    {
-      "source": {
-        "logs": {
-          "operator": {
-            "equals": {
-              "selection": {
-                "list": {
-                  "values": []
-                }
-              }
-            }
-          },
-          "observationField": {
-            "keypath": [
-              "applicationname"
-            ],
-            "scope": "DATASET_SCOPE_LABEL"
-          }
-        }
-      },
-      "enabled": true,
-      "collapsed": false
-    },
-    {
-      "source": {
-        "logs": {
-          "operator": {
-            "equals": {
-              "selection": {
-                "list": {
-                  "values": []
-                }
-              }
-            }
-          },
-          "observationField": {
-            "keypath": [
-              "subsystemname"
-            ],
-            "scope": "DATASET_SCOPE_LABEL"
-          }
-        }
-      },
-      "enabled": true,
-      "collapsed": false
-    }
-  ],
+  "filters": [],
   "relativeTimeFrame": "604800s",
   "annotations": [],
   "off": {}

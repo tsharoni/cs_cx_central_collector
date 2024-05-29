@@ -44,11 +44,11 @@ if __name__ == '__main__':
             key=cx_api_key,
             name="dataprime_usage",
             description="",
-            query="action_details.operation.action:\\\"api\/v1\/dataprime\/query\\\"",
+            query="_exists_:actor.username\\tAND\\t_exists_:action_details.operation.operation_payload.queryDef.queryParams.query.text\\tAND\\taction_details.operation.operation_payload.queryDef.queryParams.query.syntax:\\\"DataprimeB64PB\\\"",
             labels_list={
                 "username": "actor.username",
                 "coralogix_team": "action.team_name",
                 "action": "action_details.operation.action",
-                "query": "action_details.operation.operation_payload.payload_string"},
+                "query": "action_details.operation.operation_payload.queryDef.queryParams.query.text"},
             permutation=30000
         )

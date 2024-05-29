@@ -18,6 +18,7 @@ region_domains = {
 
 coralogix_alerts_url = "https://api.{}/api/v1/external/alerts"
 coralogix_parsing_url = "https://api.{}/api/v1/external/rules"
+coralogix_parsing_export_url = "https://api.{}/api/v1/external/rules/export"
 coralogix_webhook_url = "https://api.{}/api/v1/external/integrations/{}"
 coralogix_grafana_url = "https://ng-api-http.{}/grafana/api/search"
 coralogix_grafana_panels_url = "https://ng-api-http.{}/grafana/api/dashboards/uid/{}"
@@ -37,10 +38,16 @@ GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApm
 GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
 
 
-def call_http_extended(url, key, method="GET", data={}, files={}):
+def call_http_extended(url, key, method="GET", data={}, files={}, content_type='application/json'):
+    headers = {
+        'Authorization': 'Bearer {}'.format(key)
+    }
+
+    if content_type:
+        headers['Content-Type'] = content_type
+
     try:
-        headers = {'Authorization': 'Bearer {}'.format(key)}
-        response = requests.request(method, url, headers=headers, data=data,files=files)
+        response = requests.request(method, url, headers=headers, data=data, files=files)
         return response.text
     except:
         print('http error')
@@ -222,6 +229,16 @@ def get_rules(region, key):
     return json.loads(call_http_extended(coralogix_parsing_url.format(region_domains[region]), key))
 
 
+def post_rules(region, key, rules):
+    output = call_http_extended(
+        url=coralogix_parsing_export_url.format(region_domains[region]),
+        key=key,
+        method='POST',
+        data=rules
+    )
+    return output
+
+
 def get_grafana_dashboards(region, key):
     return json.loads(call_http_extended(coralogix_grafana_url.format(region_domains[region]), key))
 
@@ -230,6 +247,7 @@ def get_grafana_dashboard_widgets(region, key, dashboard_id):
     return json.loads(call_http_extended(
         coralogix_grafana_panels_url.format(region_domains[region], dashboard_id),
         key))
+
 
 def get_webhooks(region, key):
     return json.loads(call_http_extended(coralogix_webhook_url.format(region_domains[region],""), key))
@@ -282,7 +300,8 @@ def send_enrichment(region, key, dictionary, enrichment_file_name):
         key=key,
         method=method,
         data=payload,
-        files=files
+        files=files,
+        content_type=None
     ))
     print(response)
 

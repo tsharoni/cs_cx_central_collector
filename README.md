@@ -1,10 +1,13 @@
 # Coralogix python services
 
 The python services include:
-- **Coralogix artifact collector** (main.py)
+- **Coralogix artifact collector** (cx_collector.py)
 - **L2Ms auto creation** (create_audit_l2m.py)
 - **Delete APM services** (delete_apm_services.py)
 - **Otel custom metrics sample** (custom_metrics.py)
+- **rules group deployment** (rulesgroups_deployment.py)
+- **audit and configuration dashboard** (audit_and_configuration_statistics.json)
+
 
 All services (beside custom metrics sample) requires a teams.json file which contains the following data:
 ```json
@@ -111,3 +114,11 @@ To simulate flushing the following environment variable is required
 ```shell
 export simulate=true
 ```
+
+## Rules groups deployment
+The following python functions (provided in cx_infra.py) are being used:
+- get_rules: get all rules groups from a Coralogix team
+- parse_rules: parse selected rules groups to a Coralogix team
+
+## audit and configuration dashboard
+The dashboard visualizes the data collected by the **coralogix collector** and the **L2Ms auto creation**

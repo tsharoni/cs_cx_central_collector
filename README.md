@@ -48,6 +48,8 @@ export CX_TOKEN=<your audit account sending log api token>
 export CX_ENDPOINT=https://ingress.<domain>:443
 export account=<account name> 
 ```
+Note, if CX_TOKEN or CX_ENDPOINT are undefined, the otel provider is set to http://localhost:4317/,
+the local agent collector (no need to provide a token)
 ## prerequisites:
 - Install grpcurl ```brew install grpcurl``` 
 - Istall python OTEL libraries: 

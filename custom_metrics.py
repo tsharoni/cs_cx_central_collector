@@ -6,10 +6,16 @@ from os import environ
 
 if __name__ == '__main__':
 
-    # set one time the otel provider
-    otel_provider = cx_otel.CoralogixOtel(
-        environ.get('CX_ENDPOINT'),
-        environ.get("CX_TOKEN"))
+    try:
+    # set one time the otel provider, by variables
+        otel_provider = cx_otel.CoralogixOtel(
+            environ.get('CX_ENDPOINT'),
+            environ.get("CX_TOKEN"))
+    except:
+    # or by the otel collector agent (no need to set the key)
+        otel_provider = cx_otel.CoralogixOtel(
+            'http://localhost:4317/',
+            'token is handled by agent')
 
     # set 2 gauges
     guage1 = cx_otel.CoralogixOtelGauge('Guage1')

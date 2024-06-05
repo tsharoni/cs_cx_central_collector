@@ -4,7 +4,18 @@ from os import environ
 import cx_infra
 import cx_otel
 
-provider = cx_otel.CoralogixOtel(environ.get('CX_ENDPOINT'), environ.get("CX_TOKEN"))
+try:
+    # set one time the otel provider, by variables
+    provider = cx_otel.CoralogixOtel(
+        environ.get('CX_ENDPOINT'),
+        environ.get("CX_TOKEN"))
+except:
+    # or by the otel collector agent (no need to set the key)
+    provider = cx_otel.CoralogixOtel(
+        'http://localhost:4317/',
+        'token is handled by agent')
+
+#provider = cx_otel.CoralogixOtel(environ.get('CX_ENDPOINT'), environ.get("CX_TOKEN"))
 cx_configuration = cx_otel.CoralogixOtelGauge("cx_configuration")
 
 simulate = False

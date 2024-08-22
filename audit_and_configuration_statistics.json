@@ -1,6 +1,6 @@
 {
-  "id": "87bn35VKAWm7onIMflAwy",
-  "name": "Audit and Configuration Statistics",
+  "id": "FMf4rCwe0BqomHcVQKZ0N",
+  "name": "Audit and Configuration Statistics (imported)",
   "layout": {
     "sections": [
       {
@@ -20,16 +20,17 @@
                 "id": {
                   "value": "d607a7b1-4ba7-534b-a3bf-ca2e2d35d3b6"
                 },
-                "title": "Active user (last 7 days)",
+                "title": "Active user",
                 "definition": {
                   "gauge": {
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "count(count_over_time(count(users_cx_docs_total{coralogix_team=~\"{{team_id}}\"}) by (username)[7d]))"
+                          "value": "count(count_over_time(count(users_cx_docs_total{coralogix_team=~\"{{team_id}}\"}) by (username)[${__range}]))"
                         },
                         "aggregation": "AGGREGATION_LAST",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -44,7 +45,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -58,10 +61,11 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(sum_over_time(users_cx_docs_total{action=\"POST:/api/v1/logquery\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                          "value": "sum(sum_over_time(users_cx_docs_total{action=\"POST:/api/v1/logquery\", coralogix_team=~\"{{team_id}}\"} [${__range}]))"
                         },
                         "aggregation": "AGGREGATION_LAST",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -76,7 +80,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -90,10 +96,11 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum (sum_over_time(users_cx_docs_total{action=\"api/v1/dataprime/query\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                          "value": "sum(sum_over_time(dataprime_usage_cx_docs_total{coralogix_team=~\"{{team_id}}\"} [${__range}]))"
                         },
                         "aggregation": "AGGREGATION_LAST",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -108,7 +115,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               }
@@ -116,7 +125,7 @@
           },
           {
             "id": {
-              "value": "740d428d-f9c7-2afa-5421-f0bb1de69c40"
+              "value": "0e9bcfaf-0c3f-0b1f-343f-9b2e6d008130"
             },
             "appearance": {
               "height": 19
@@ -126,15 +135,16 @@
                 "id": {
                   "value": "acfed937-17c2-870b-884e-70060431e6c0"
                 },
-                "title": "User logins (past 7 days)",
+                "title": "User logins",
                 "definition": {
                   "dataTable": {
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum by(username, coralogix_team) (sum_over_time(users_cx_docs_total{action=\"com.coralogix.users.v1.UserSettingsService/GetUserSettings\",coralogix_team=~\"{{team_id}}\"} [7d]))"
+                          "value": "sum by(username, coralogix_team) (sum_over_time(users_cx_docs_total{action=\"com.coralogix.users.v1.UserSettingsService/GetUserSettings\",coralogix_team=~\"{{team_id}}\"} [${__range}]))"
                         },
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "resultsPerPage": 10,
@@ -159,17 +169,59 @@
               },
               {
                 "id": {
-                  "value": "237c742a-56f8-2114-a647-8193779bdb06"
+                  "value": "8da5f5f5-e942-a052-98ef-6d1ac5656ed6"
                 },
-                "title": "Number of lucene queries per user (past 7 days)",
+                "title": "Inactive users",
                 "definition": {
                   "dataTable": {
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum by(action,username,coralogix_team) (sum_over_time(users_cx_docs_total{action=\"POST:/api/v1/logquery\", coralogix_team=~\"{{team_id}}\"} [7d]))"
+                          "value": "(count(count_over_time(cx_configuration{type=\"user\",username!=\"\",team_id=~\"{{team_id}}\"}[${__range}])) by (team_id,username) unless count(count_over_time(label_replace(users_cx_docs_total{team_id=~\"{{team_id}}\"},\"team_id\",\"$1\",\"coralogix_team\",\"(.*)\")[${__range}])) by (team_id,username))"
                         },
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "team_id"
+                      },
+                      {
+                        "field": "username",
+                        "width": 245
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "740d428d-f9c7-2afa-5421-f0bb1de69c40"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "237c742a-56f8-2114-a647-8193779bdb06"
+                },
+                "title": "Number of lucene queries per user",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum by(action,username,coralogix_team) (sum_over_time(users_cx_docs_total{action=\"POST:/api/v1/logquery\", coralogix_team=~\"{{team_id}}\"} [${__range}]))"
+                        },
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "resultsPerPage": 10,
@@ -196,15 +248,16 @@
                 "id": {
                   "value": "b2e0eb78-9dce-b3ba-dde1-69f2b21bda3c"
                 },
-                "title": "Number of dataprime queries per user (past 7 days)",
+                "title": "Number of dataprime queries per user",
                 "definition": {
                   "dataTable": {
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum by(action,username,coralogix_team) (sum_over_time(dataprime_usage_cx_docs_total{coralogix_team=~\"{{team_id}}\"} [7d]))"
+                          "value": "sum by(action,username,coralogix_team) (sum_over_time(dataprime_usage_cx_docs_total{coralogix_team=~\"{{team_id}}\"} [${__range}]))"
                         },
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "resultsPerPage": 10,
@@ -251,9 +304,10 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum by(query,username,team_name) (sum_over_time(dataprime_usage_cx_docs_total{team_name=~\"{{team_id}}\",username=~\"{{username}}\"} [7d]))"
+                          "value": "sum by(query,username,team_name) (sum_over_time(dataprime_usage_cx_docs_total{team_name=~\"{{team_id}}\",username=~\"{{username}}\"} [${__range}]))"
                         },
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "resultsPerPage": 20,
@@ -285,7 +339,10 @@
         "options": {
           "custom": {
             "name": " Users and Activities",
-            "collapsed": false
+            "collapsed": false,
+            "color": {
+              "predefined": "SECTION_PREDEFINED_COLOR_GREEN"
+            }
           }
         }
       },
@@ -317,7 +374,8 @@
                         "filters": [],
                         "groupNames": [
                           "dashboard_name"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxBarsPerChart": 24,
@@ -355,7 +413,8 @@
                         "groupNames": [
                           "username",
                           "dashboard_name"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxSlicesPerChart": 8,
@@ -400,7 +459,8 @@
                           "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})[1y])"
                         },
                         "aggregation": "AGGREGATION_LAST",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -415,7 +475,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -432,7 +494,8 @@
                           "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"}[1y])) by (widget_type))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -447,7 +510,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -464,7 +529,8 @@
                           "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_dashboard\"}[1y]))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -479,7 +545,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -496,7 +564,8 @@
                           "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"grafana_panel\"}[1y])) by (panel_type))"
                         },
                         "aggregation": "AGGREGATION_LAST",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -511,7 +580,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               }
@@ -540,7 +611,8 @@
                         "filters": [],
                         "groupNames": [
                           "widget_type"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxSlicesPerChart": 8,
@@ -577,7 +649,8 @@
                         "filters": [],
                         "groupNames": [
                           "panel_type"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxSlicesPerChart": 8,
@@ -605,7 +678,10 @@
         "options": {
           "custom": {
             "name": "Dashboards",
-            "collapsed": false
+            "collapsed": false,
+            "color": {
+              "predefined": "SECTION_PREDEFINED_COLOR_GREEN"
+            }
           }
         }
       },
@@ -635,7 +711,8 @@
                           "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"alert\"}[1y])) by (alert_type))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -650,7 +727,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -667,7 +746,8 @@
                           "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"alert\",active=\"true\"}[1y])) by (alert_type))"
                         },
                         "aggregation": "AGGREGATION_LAST",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -682,7 +762,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -699,7 +781,8 @@
                           "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"webhook\"}[1y])) by (webhook_type))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -714,7 +797,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               }
@@ -743,7 +828,8 @@
                         "filters": [],
                         "groupNames": [
                           "alert_type"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxSlicesPerChart": 8,
@@ -780,7 +866,8 @@
                         "filters": [],
                         "groupNames": [
                           "webhook_type"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxSlicesPerChart": 8,
@@ -808,7 +895,10 @@
         "options": {
           "custom": {
             "name": "Alerts and Webhooks",
-            "collapsed": false
+            "collapsed": false,
+            "color": {
+              "predefined": "SECTION_PREDEFINED_COLOR_GREEN"
+            }
           }
         }
       },
@@ -838,7 +928,8 @@
                           "value": "sum(max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"apm\"}[1y])) by (service_type))"
                         },
                         "aggregation": "AGGREGATION_UNSPECIFIED",
-                        "filters": []
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "min": 0,
@@ -853,7 +944,9 @@
                       }
                     ],
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE"
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
               },
@@ -872,7 +965,8 @@
                         "filters": [],
                         "groupNames": [
                           "service_type"
-                        ]
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
                     "maxSlicesPerChart": 8,
@@ -900,7 +994,10 @@
         "options": {
           "custom": {
             "name": "APM",
-            "collapsed": false
+            "collapsed": false,
+            "color": {
+              "predefined": "SECTION_PREDEFINED_COLOR_GREEN"
+            }
           }
         }
       }

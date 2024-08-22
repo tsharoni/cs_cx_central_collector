@@ -15,7 +15,6 @@ except:
         'http://localhost:4317/',
         'token is handled by agent')
 
-#provider = cx_otel.CoralogixOtel(environ.get('CX_ENDPOINT'), environ.get("CX_TOKEN"))
 cx_configuration = cx_otel.CoralogixOtelGauge("cx_configuration")
 
 simulate = False
@@ -259,9 +258,9 @@ def flush_tco_overrides(region, key):
 
     overrides = cx_infra.get_tco_overides(region, key)
 
-    cx_configuration.flush_results(provider, labels, len(overrides))
-
-    print('total tco overrides = {}'.format(len(overrides)))
+    if overrides:
+        cx_configuration.flush_results(provider, labels, len(overrides))
+        print('total tco overrides = {}'.format(len(overrides)))
 
 
 def flush_rules(region, key):
@@ -298,6 +297,34 @@ def flush_rules(region, key):
     )
 
 
+def flush_users(region, key):
+
+    labels = {'type': 'user'}
+
+    users = cx_infra.get_users(region, key)
+
+    total_inactive = 0
+    total_active = 0
+    for user in users["data"]:
+        labels["active"] = user["isActive"]
+        labels["username"] = user["username"]
+        labels["created_at"] = user["created_at"]
+        cx_configuration.flush_results(provider, labels, 1)
+        if user["isActive"]:
+            total_active += 1
+        else:
+            total_inactive += 1
+    labels = {'type': 'user','active': True}
+    cx_configuration.flush_results(provider, labels, total_active)
+    labels = {'type': 'user','active': False}
+    cx_configuration.flush_results(provider, labels, total_inactive)
+
+    print('total users = {}; inactive = {}'.format(
+        total_active + total_inactive,
+        total_inactive)
+    )
+
+
 def flush_grafana(region, key):
 
     labels = {'type': 'grafana_folder'}
@@ -310,6 +337,8 @@ def flush_grafana(region, key):
 
     for dashboard in dashboards:
         dashboards_panels = cx_infra.get_grafana_dashboard_widgets(region, key, dashboard['uid'])
+        if not dashboards_panels:
+            continue
         try:
             for dashboard_panels in dashboards_panels['dashboard']['panels']:
                 if dashboard_panels['type'] in panels_type:

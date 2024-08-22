@@ -25,6 +25,7 @@ coralogix_grafana_panels_url = "https://ng-api-http.{}/grafana/api/dashboards/ui
 coralogix_tco_overrides_url = "https://api.{}/api/v1/external/tco/overrides"
 coralogix_custom_enrichment_url = "https://webapi.{}/api/v1/external/custom-enrichments{}{}"
 coralogix_grpc_url = "ng-api-grpc.{}:443"
+coralogix_users_url = "https://api.{}/api/v1/user/team/teammates"
 
 GRPC_E2M_METHOD = "com.coralogixapis.events2metrics.v2.Events2MetricService.ListE2M"
 GRPC_RECORDING_RULE_METHOD = "rule_manager.groups.RuleGroups.List"
@@ -218,11 +219,17 @@ def get_tco(region, key):
 
 
 def get_tco_overides(region, key):
-    return json.loads(call_http_extended(coralogix_tco_overrides_url.format(region_domains[region]), key))
+    response = call_http_extended(coralogix_tco_overrides_url.format(region_domains[region]), key)
+    if response != '':
+        return json.loads(response)
 
 
 def get_alerts(region, key):
     return json.loads(call_http_extended(coralogix_alerts_url.format(region_domains[region]), key))
+
+
+def get_users(region, key):
+    return json.loads(call_http_extended(coralogix_users_url.format(region_domains[region]), key))
 
 
 def get_rules(region, key):
@@ -244,9 +251,11 @@ def get_grafana_dashboards(region, key):
 
 
 def get_grafana_dashboard_widgets(region, key, dashboard_id):
-    return json.loads(call_http_extended(
+    response = call_http_extended(
         coralogix_grafana_panels_url.format(region_domains[region], dashboard_id),
-        key))
+        key)
+    if response != '':
+        return json.loads(response)
 
 
 def get_webhooks(region, key):

@@ -22,7 +22,8 @@
       {
         "name": "<team name>",
         "region": "<region>",
-        "key": "<team2 alerts api key>"
+        "key": "<team2 alerts api key>",
+        "team_id": "<team id>(required to collect users from team)"
       }
     ]
   }

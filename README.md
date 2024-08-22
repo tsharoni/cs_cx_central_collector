@@ -24,7 +24,8 @@ All services (beside custom metrics sample) requires a teams.json file which con
       {
         "name": "<team2 name>",
         "region": "<region>",
-        "key": "<team2 alerts api key>"
+        "key": "<team2 alerts api key>",
+        "team_id": "<team id>(required to collect users from team)"
       }
     ]
   },
@@ -47,9 +48,13 @@ To launch a script the following environment variables are required:
 export CX_TOKEN=<your audit account sending log api token>
 export CX_ENDPOINT=https://ingress.<domain>:443
 export account=<account name> 
+export CX_USERS_TOKEN=<your token taken from your region cookies>
 ```
 Note, if CX_TOKEN or CX_ENDPOINT are undefined, the otel provider is set to http://localhost:4317/,
 the local agent collector (no need to provide a token)
+
+The CX_USERS_TOKEN is optional , in case it is not defined, no collection of users set for the account will be taken
+
 ## prerequisites:
 - Install grpcurl ```brew install grpcurl``` 
 - Istall python OTEL libraries: 

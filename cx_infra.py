@@ -52,9 +52,10 @@ def call_http_extended(url, key, method="GET", data={}, files={}, content_type='
         return response.text
     except:
         print('http error')
+        return
 
 
-def call_grpc(region, key, method, params=None):
+def call_grpc(region, key, method, params=None, data_output=True):
 
     server_address = coralogix_grpc_url.format(region_domains[region])
 
@@ -86,7 +87,11 @@ def call_grpc(region, key, method, params=None):
         # Print the output and error
         json_data = json.loads(output)
 
-        return json_data
+        if data_output:
+            return json_data
+        else:
+            return output
+
         # print("Return Code:", return_code)
 
     except Exception as e:
@@ -189,6 +194,13 @@ def get_dashboard_widgets(region, key, dashboard_id):
     return dashboard_data
 
 
+def get_dashboard_file(region, key, dashboard_id):
+
+    parameters = """{"dashboardId":"%s"}""" % dashboard_id
+    dashboard_file = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters, data_output=False)
+    return dashboard_file
+
+
 def get_e2m(region, key):
     json_data = call_grpc(region, key, GRPC_E2M_METHOD)
     return json_data
@@ -220,7 +232,7 @@ def get_tco(region, key):
 
 def get_tco_overides(region, key):
     response = call_http_extended(coralogix_tco_overrides_url.format(region_domains[region]), key)
-    if response != '':
+    if response:
         return json.loads(response)
 
 
@@ -256,6 +268,14 @@ def get_grafana_dashboard_widgets(region, key, dashboard_id):
         key)
     if response != '':
         return json.loads(response)
+
+
+def get_grafana_dashboard_file(region, key, dashboard_id):
+    response = call_http_extended(
+        coralogix_grafana_panels_url.format(region_domains[region], dashboard_id),
+        key)
+    if response != '':
+        return response
 
 
 def get_webhooks(region, key):

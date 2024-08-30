@@ -60,6 +60,17 @@ def flush_alerts(region, key):
     print('total alerts = {}; active={} {}'.format(total, active, alerts_type))
 
 
+def flush_views(region, key):
+    labels = {'type': 'view'}
+    total_views = 0
+
+    views = cx_infra.get_views(region, key)
+    if views:
+        total_views = len(views)
+        cx_configuration.flush_results(provider, labels, total_views)
+        print('total views - {}'.format(total_views))
+
+
 def flush_webhooks(region, key):
 
     labels = {'type': 'webhook'}

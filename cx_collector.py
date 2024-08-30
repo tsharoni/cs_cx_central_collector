@@ -34,7 +34,7 @@ if __name__ == '__main__':
         print("\naccount: {}".format(account["account"]))
 
         dashboards = {}
-
+        views = {}
         for team in account["teams"]:
             cx_central.set_attributes(account["account"], team["name"])
             print("team: {}".format(team["name"]))
@@ -59,6 +59,10 @@ if __name__ == '__main__':
                     region=team["region"],
                     key=team["key"])
                 )
+                views.update(cx_infra.get_views(
+                    region=team["region"],
+                    key=team["key"])
+                )
 
         if enrichment and len(dashboards) > 0:
             cx_infra.send_enrichment(
@@ -66,4 +70,10 @@ if __name__ == '__main__':
                 key=cx_api_key,
                 dictionary=dashboards,
                 enrichment_file_name="{}-dashboards".format(account_env)
+            )
+            cx_infra.send_enrichment(
+                region=cx_api_key_region,
+                key=cx_api_key,
+                dictionary=views,
+                enrichment_file_name="{}-views".format(account_env)
             )

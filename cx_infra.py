@@ -34,7 +34,7 @@ GRPC_SLO_METHOD = "com.coralogixapis.apm.services.v1.ServiceSloService/ListServi
 GRPC_TCO_POLICIES = "com.coralogix.quota.v1.PoliciesService.GetCompanyPolicies"
 GRPC_DASHBOARD_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardCatalogService/GetDashboardCatalog"
 GRPC_DASHBOARD_GET_METHOD = "com.coralogixapis.dashboards.v1.services.DashboardsService/GetDashboard"
-
+GRPC_VIEWS_METHOD = "com.coralogixapis.views.v1.services.ViewsService/ListViews"
 GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApmService"
 GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
 
@@ -85,14 +85,13 @@ def call_grpc(region, key, method, params=None, data_output=True):
         output, error = process.communicate()
 
         # Print the output and error
-        json_data = json.loads(output)
-
-        if data_output:
+        if error != '':
+            print("method: '{}' \n - {}".format(method, error))
+        elif data_output:
+            json_data = json.loads(output)
             return json_data
         else:
             return output
-
-        # print("Return Code:", return_code)
 
     except Exception as e:
         print("Error:{}{}".format(e, error))
@@ -169,6 +168,22 @@ def create_e2m(region,
 
     json_data = call_grpc(region, key, GRPC_E2M_CREATE, parameters)
     print("{}".format(json_data))
+
+
+def get_views(region, key):
+
+    views = {}
+    json_data = call_grpc(region, key, GRPC_VIEWS_METHOD)
+
+    if not json_data:
+        return {}
+
+    for view in json_data['views']:
+        views[view['id']] = view['name']
+
+    print('number of views added [{}]'.format(len(views)))
+
+    return views
 
 
 def get_dashboards(region, key):

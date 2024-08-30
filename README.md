@@ -80,6 +80,7 @@ The following python functions (provided in cx_central.py) are being used:
 - flush_apm_services :  reading all APM services for a team and flush to an (audit) account
 - flush_slo: reading all APM SLOs for a team and flush to an (audit) account
 - flush_dashboards :  reading all Coralogix dashboards and their widgets for a team and flush to an (audit) account
+- flush_views: reading all coralogix views for a team and flush to an (audit) account
 
 To simulate flushing the following environment variable is required
 ```shell
@@ -88,7 +89,8 @@ export simulate=true
 
 The following python functions (provided in cx_infra.py) are being used:
 - get_dashboards : get dashboards of a team for the enrichment file
-- send_enrichment :  sending coralogix dashboards ID and their names to an audit account for enrichment
+- get_views : get views of a team for the enrichment file
+- send_enrichment :  sending coralogix dashboards ID or views ID and their names to an audit account for enrichment
 
 To send the enrichment file for the audit account the following environment variables are required:
 ```shell
@@ -96,9 +98,13 @@ export CX_API_KEY_REGION=<your our audit account region>
 export CX_API_KEY=<your our audit alert key>
 ```
 
+There is not autoamtion to set the key for custom enrichments file. Therefore manually add keys to the following:
+- <account>-dashboards: action_details.operation.operation_payload.dashboardId
+- <account>-views: action_details.operation.operation_payload.queryDef.selectedViewId
+
 ## L2Ms auto creation
 The following python functions (provided in cx_infra.py) are being used:
-- create_e2m : create l2m for Users (users activities), dashboards usage and dataprime queries usage
+- create_e2m : create l2m for Users (users activities), dashboards usage , view usage and dataprime queries usage
 
 ## Delete APM services
 The following python functions (provided in cx_infra.py) are being used:

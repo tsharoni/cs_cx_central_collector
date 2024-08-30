@@ -42,6 +42,7 @@ if __name__ == '__main__':
             if cx_users_api_key and "team_id" in team:
                 key = "{}/{}".format(cx_users_api_key, team["team_id"])
                 cx_central.flush_users(region=team["region"], key=key)
+            cx_central.flush_views(region=team["region"], key=team["key"])
             cx_central.flush_grafana(region=team["region"], key=team["key"])
             cx_central.flush_alerts(region=team["region"], key=team["key"])
             cx_central.flush_webhooks(region=team["region"], key=team["key"])

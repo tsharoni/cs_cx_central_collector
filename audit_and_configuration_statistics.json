@@ -1,6 +1,6 @@
 {
-  "id": "e68lcvEY7lRTtdcxjFqhX",
-  "name": "Audit and Configuration Statistics",
+  "id": "YlL8cLkwXsn2JzEf7Z6Vy",
+  "name": "Audit and Configuration Statistics (imported)",
   "layout": {
     "sections": [
       {
@@ -47,7 +47,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -200,7 +200,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -235,7 +235,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -421,13 +421,136 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
               {
                 "id": {
                   "value": "aff66262-ae76-2f1c-29f7-5041a72d6be5"
+                },
+                "title": "Most popoular views",
+                "definition": {
+                  "horizontalBarChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sort_desc(sum(sum_over_time(views_usage_cx_docs_total{}[7d])) by (team_name,view_name))"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "team_name",
+                          "view_name"
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "maxBarsPerChart": 24,
+                    "stackDefinition": {
+                      "maxSlicesPerBar": 7
+                    },
+                    "scaleType": "SCALE_TYPE_LINEAR",
+                    "colorsBy": {
+                      "groupBy": {}
+                    },
+                    "unit": "UNIT_UNSPECIFIED",
+                    "displayOnBar": true,
+                    "yAxisViewBy": {
+                      "value": {}
+                    },
+                    "sortBy": "SORT_BY_TYPE_VALUE",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "0c719f7c-2141-6aff-26d0-91bbe6faf77a"
+                },
+                "title": "Views usage by users",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum(sum_over_time(views_usage_cx_docs_total{}[7d])) by (view_name,username)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "username"
+                        ],
+                        "stackedGroupName": "view_name",
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": false,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "bc6d7442-1fd6-87ee-383d-fd27cff07b26"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "c166cc40-828c-aae1-e71c-bd105fe8259b"
+                },
+                "title": "Coralogix (custom) dashboards - total",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})[1y])"
+                        },
+                        "aggregation": "AGGREGATION_LAST",
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "c75f7f68-3a22-2e80-e2b1-c062cf8e3f15"
                 },
                 "title": "Most popoular (CX) dashboards",
                 "definition": {
@@ -465,7 +588,7 @@
               },
               {
                 "id": {
-                  "value": "0c719f7c-2141-6aff-26d0-91bbe6faf77a"
+                  "value": "3e951db8-b797-24fb-35cd-e6309c3f1d55"
                 },
                 "title": "Dashboard usage by users",
                 "definition": {
@@ -477,9 +600,9 @@
                         },
                         "filters": [],
                         "groupNames": [
-                          "username",
-                          "dashboard_name"
+                          "username"
                         ],
+                        "stackedGroupName": "dashboard_name",
                         "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
@@ -506,47 +629,12 @@
           },
           {
             "id": {
-              "value": "2270ac3a-b136-0396-f5d6-8fea0451cbcf"
+              "value": "efd92fed-4cef-ecb6-d766-77bce169eda2"
             },
             "appearance": {
               "height": 19
             },
             "widgets": [
-              {
-                "id": {
-                  "value": "c166cc40-828c-aae1-e71c-bd105fe8259b"
-                },
-                "title": "Coralogix (custom) dashboards - total",
-                "definition": {
-                  "gauge": {
-                    "query": {
-                      "metrics": {
-                        "promqlQuery": {
-                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})[1y])"
-                        },
-                        "aggregation": "AGGREGATION_LAST",
-                        "filters": [],
-                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
-                      }
-                    },
-                    "min": 0,
-                    "max": 100,
-                    "showInnerArc": false,
-                    "showOuterArc": false,
-                    "unit": "UNIT_NUMBER",
-                    "thresholds": [
-                      {
-                        "from": 0,
-                        "color": "var(--c-severity-log-verbose)"
-                      }
-                    ],
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
-                    "thresholdBy": "THRESHOLD_BY_VALUE",
-                    "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
-                  }
-                }
-              },
               {
                 "id": {
                   "value": "e466cc4c-d8ec-30c8-55d0-08d3e74002e6"
@@ -578,10 +666,58 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
+              {
+                "id": {
+                  "value": "d968054f-fda7-847e-e491-44b07736c492"
+                },
+                "title": "(CX dashboards) distribution by widget type",
+                "definition": {
+                  "pieChart": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"}[1y])) by (widget_type)"
+                        },
+                        "filters": [],
+                        "groupNames": [
+                          "widget_type"
+                        ],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "maxSlicesPerChart": 8,
+                    "minSlicePercentage": 1,
+                    "stackDefinition": {
+                      "maxSlicesPerStack": 4
+                    },
+                    "labelDefinition": {
+                      "labelSource": "LABEL_SOURCE_INNER",
+                      "isVisible": true,
+                      "showName": true,
+                      "showValue": true,
+                      "showPercentage": true
+                    },
+                    "showLegend": true,
+                    "unit": "UNIT_UNSPECIFIED",
+                    "colorScheme": "classic",
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "2270ac3a-b136-0396-f5d6-8fea0451cbcf"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
               {
                 "id": {
                   "value": "6740db10-9f91-4c05-5b92-ca33983ebaa1"
@@ -613,7 +749,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -648,55 +784,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
-                  }
-                }
-              }
-            ]
-          },
-          {
-            "id": {
-              "value": "1c3717d1-1a84-9efd-195c-bee4449b4975"
-            },
-            "appearance": {
-              "height": 19
-            },
-            "widgets": [
-              {
-                "id": {
-                  "value": "d968054f-fda7-847e-e491-44b07736c492"
-                },
-                "title": "distribution by widget type",
-                "definition": {
-                  "pieChart": {
-                    "query": {
-                      "metrics": {
-                        "promqlQuery": {
-                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_widget\"}[1y])) by (widget_type)"
-                        },
-                        "filters": [],
-                        "groupNames": [
-                          "widget_type"
-                        ],
-                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
-                      }
-                    },
-                    "maxSlicesPerChart": 8,
-                    "minSlicePercentage": 1,
-                    "stackDefinition": {
-                      "maxSlicesPerStack": 4
-                    },
-                    "labelDefinition": {
-                      "labelSource": "LABEL_SOURCE_INNER",
-                      "isVisible": true,
-                      "showName": true,
-                      "showValue": true,
-                      "showPercentage": true
-                    },
-                    "showLegend": true,
-                    "unit": "UNIT_UNSPECIFIED",
-                    "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -704,7 +792,7 @@
                 "id": {
                   "value": "cd382596-06e2-76dd-042b-241fe539da44"
                 },
-                "title": "distribution by widget type",
+                "title": "(grafana) distribution by widget type",
                 "definition": {
                   "pieChart": {
                     "query": {
@@ -795,7 +883,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -830,7 +918,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },
@@ -865,7 +953,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               }
@@ -1012,7 +1100,7 @@
                     "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
                     "thresholdBy": "THRESHOLD_BY_VALUE",
                     "customUnit": "",
-                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                    "thresholdType": "THRESHOLD_TYPE_RELATIVE"
                   }
                 }
               },

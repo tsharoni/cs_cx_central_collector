@@ -1,6 +1,6 @@
 {
-  "id": "FMf4rCwe0BqomHcVQKZ0N",
-  "name": "Audit and Configuration Statistics (imported)",
+  "id": "e68lcvEY7lRTtdcxjFqhX",
+  "name": "Audit and Configuration Statistics",
   "layout": {
     "sections": [
       {
@@ -51,6 +51,124 @@
                   }
                 }
               },
+              {
+                "id": {
+                  "value": "acfed937-17c2-870b-884e-70060431e6c0"
+                },
+                "title": "User logins",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "sum by(username, coralogix_team) (sum_over_time(users_cx_docs_total{action=\"com.coralogix.users.v1.UserSettingsService/GetUserSettings\",coralogix_team=~\"{{team_id}}\"} [${__range}]))"
+                        },
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "#chart"
+                      },
+                      {
+                        "field": "#sum"
+                      },
+                      {
+                        "field": "coralogix_team"
+                      },
+                      {
+                        "field": "username"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "da5a11cf-c3e4-cfc2-049a-f50aff841c14"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
+              {
+                "id": {
+                  "value": "8da5f5f5-e942-a052-98ef-6d1ac5656ed6"
+                },
+                "title": "Inactive users",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "(min(min_over_time(cx_configuration{type=\"user\",username!=\"\",team_id=~\"{{team_id}}\"}[${__range}])) by (team_id,username) unless clamp_min(clamp_max(count(min_over_time(label_replace(users_cx_docs_total{coralogix_team=~\"{{team_id}}\"},\"team_id\",\"$1\",\"coralogix_team\",\"(.*)\")[${__range}]),1) by (team_id,username),1),1) or vector(1))"
+                        },
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "team_id"
+                      },
+                      {
+                        "field": "username",
+                        "width": 245
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
+                  "value": "f6650160-1f10-980e-79a8-ecc63afb4262"
+                },
+                "title": "All users",
+                "definition": {
+                  "dataTable": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "count(count_over_time(cx_configuration{type=\"user\",username!=\"\",team_id=~\"{{team_id}}\"}[${__range}])) by (team_id,username)"
+                        },
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "resultsPerPage": 10,
+                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
+                    "columns": [
+                      {
+                        "field": "team_id"
+                      },
+                      {
+                        "field": "username",
+                        "width": 245
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": {
+              "value": "740d428d-f9c7-2afa-5421-f0bb1de69c40"
+            },
+            "appearance": {
+              "height": 19
+            },
+            "widgets": [
               {
                 "id": {
                   "value": "25ec7b55-51df-061a-8d44-a80160ebce31"
@@ -120,94 +238,7 @@
                     "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
                   }
                 }
-              }
-            ]
-          },
-          {
-            "id": {
-              "value": "0e9bcfaf-0c3f-0b1f-343f-9b2e6d008130"
-            },
-            "appearance": {
-              "height": 19
-            },
-            "widgets": [
-              {
-                "id": {
-                  "value": "acfed937-17c2-870b-884e-70060431e6c0"
-                },
-                "title": "User logins",
-                "definition": {
-                  "dataTable": {
-                    "query": {
-                      "metrics": {
-                        "promqlQuery": {
-                          "value": "sum by(username, coralogix_team) (sum_over_time(users_cx_docs_total{action=\"com.coralogix.users.v1.UserSettingsService/GetUserSettings\",coralogix_team=~\"{{team_id}}\"} [${__range}]))"
-                        },
-                        "filters": [],
-                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
-                      }
-                    },
-                    "resultsPerPage": 10,
-                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
-                    "columns": [
-                      {
-                        "field": "#chart"
-                      },
-                      {
-                        "field": "#sum"
-                      },
-                      {
-                        "field": "coralogix_team"
-                      },
-                      {
-                        "field": "username"
-                      }
-                    ],
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
-                  }
-                }
               },
-              {
-                "id": {
-                  "value": "8da5f5f5-e942-a052-98ef-6d1ac5656ed6"
-                },
-                "title": "Inactive users",
-                "definition": {
-                  "dataTable": {
-                    "query": {
-                      "metrics": {
-                        "promqlQuery": {
-                          "value": "(count(count_over_time(cx_configuration{type=\"user\",username!=\"\",team_id=~\"{{team_id}}\"}[${__range}])) by (team_id,username) unless count(count_over_time(label_replace(users_cx_docs_total{team_id=~\"{{team_id}}\"},\"team_id\",\"$1\",\"coralogix_team\",\"(.*)\")[${__range}])) by (team_id,username))"
-                        },
-                        "filters": [],
-                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
-                      }
-                    },
-                    "resultsPerPage": 10,
-                    "rowStyle": "ROW_STYLE_UNSPECIFIED",
-                    "columns": [
-                      {
-                        "field": "team_id"
-                      },
-                      {
-                        "field": "username",
-                        "width": 245
-                      }
-                    ],
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
-                  }
-                }
-              }
-            ]
-          },
-          {
-            "id": {
-              "value": "740d428d-f9c7-2afa-5421-f0bb1de69c40"
-            },
-            "appearance": {
-              "height": 19
-            },
-            "widgets": [
               {
                 "id": {
                   "value": "237c742a-56f8-2114-a647-8193779bdb06"
@@ -361,6 +392,41 @@
             "widgets": [
               {
                 "id": {
+                  "value": "fb8f6a7b-5b28-ce74-dac2-ac77be77409d"
+                },
+                "title": "Views - total",
+                "definition": {
+                  "gauge": {
+                    "query": {
+                      "metrics": {
+                        "promqlQuery": {
+                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"view\"})[1y])"
+                        },
+                        "aggregation": "AGGREGATION_LAST",
+                        "filters": [],
+                        "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
+                      }
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "showInnerArc": false,
+                    "showOuterArc": false,
+                    "unit": "UNIT_NUMBER",
+                    "thresholds": [
+                      {
+                        "from": 0,
+                        "color": "var(--c-severity-log-verbose)"
+                      }
+                    ],
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "thresholdBy": "THRESHOLD_BY_VALUE",
+                    "customUnit": "",
+                    "thresholdType": "THRESHOLD_TYPE_UNSPECIFIED"
+                  }
+                }
+              },
+              {
+                "id": {
                   "value": "aff66262-ae76-2f1c-29f7-5041a72d6be5"
                 },
                 "title": "Most popoular (CX) dashboards",
@@ -448,7 +514,7 @@
             "widgets": [
               {
                 "id": {
-                  "value": "fb8f6a7b-5b28-ce74-dac2-ac77be77409d"
+                  "value": "c166cc40-828c-aae1-e71c-bd105fe8259b"
                 },
                 "title": "Coralogix (custom) dashboards - total",
                 "definition": {
@@ -677,7 +743,7 @@
         ],
         "options": {
           "custom": {
-            "name": "Dashboards",
+            "name": "Dashboards and Views",
             "collapsed": false,
             "color": {
               "predefined": "SECTION_PREDEFINED_COLOR_GREEN"
@@ -1120,7 +1186,7 @@
     }
   ],
   "filters": [],
-  "relativeTimeFrame": "604800s",
+  "relativeTimeFrame": "2592000s",
   "annotations": [],
   "off": {}
 }

@@ -16,7 +16,7 @@ def dump_dashboards(region, key, file_prefix):
         if not dashboard_file:
             continue
 
-        output = open("{}-{}-{}.json".format(file_prefix, dashboards[dashboard_id], dashboard_id), 'w')
+        output = open("{}-{}.json".format(file_prefix, dashboard_id), 'w')
         output.write(dashboard_file)
         output.close()
 
@@ -34,7 +34,7 @@ def dump_grafana_dashboards(region, key, file_prefix):
         if not dashboard_file:
             continue
 
-        output = open("{}-{}-{}.json".format(file_prefix, dashboard['uid'], dashboard['title']), 'w')
+        output = open("{}-{}.json".format(file_prefix, dashboard['uid']), 'w')
         output.write(dashboard_file)
         output.close()
 
@@ -46,7 +46,7 @@ def dump_alerts(region, key, file_prefix):
         print('Failed to retrieve alerts')
         return
 
-    output = open("{}-alerts.json".format(file_prefix), 'w')
+    output = open("{}.json".format(file_prefix), 'w')
     output.write(alerts)
     output.close()
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         for team in account["teams"]:
             print("team: {}".format(team["name"]))
             # special setup to get the list of users
-            dump_dashboards(region=team["region"], key=team["key"], file_prefix="cx_dashboards-{}".format(team["name"]))
-            dump_grafana_dashboards(region=team["region"], key=team["key"], file_prefix="grafana_dashboards-{}".format(team["name"]))
-            dump_alerts(region=team["region"], key=team["key"], file_prefix="alerts-{}".format(team["name"]))
+            dump_dashboards(region=team["region"], key=team["key"], file_prefix="{}-cx_dashboards".format(team["name"]))
+            dump_grafana_dashboards(region=team["region"], key=team["key"], file_prefix="{}-grafana_dashboards".format(team["name"]))
+            dump_alerts(region=team["region"], key=team["key"], file_prefix="{}-alerts".format(team["name"]))
 

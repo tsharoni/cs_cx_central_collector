@@ -1,6 +1,6 @@
 {
   "id": "YlL8cLkwXsn2JzEf7Z6Vy",
-  "name": "Audit and Configuration Statistics (imported)",
+  "name": "Audit and Configuration Statistics",
   "layout": {
     "sections": [
       {
@@ -400,7 +400,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"view\"})[1y])"
+                          "value": "sum(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"view\"})[1y])"
                         },
                         "aggregation": "AGGREGATION_LAST",
                         "filters": [],
@@ -435,7 +435,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sort_desc(sum(sum_over_time(views_usage_cx_docs_total{}[7d])) by (team_name,view_name))"
+                          "value": "sort_desc(sum(sum_over_time(views_usage_cx_docs_total{team_name=~\"{{team_id}}\",view_name!=\"cx_null\"}[${__range}])) by (team_name,view_name))"
                         },
                         "filters": [],
                         "groupNames": [
@@ -460,7 +460,8 @@
                     },
                     "sortBy": "SORT_BY_TYPE_VALUE",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               },
@@ -474,7 +475,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(sum_over_time(views_usage_cx_docs_total{}[7d])) by (view_name,username)"
+                          "value": "sum(sum_over_time(views_usage_cx_docs_total{team_name=~\"{{team_id}}\",view_name!=\"cx_null\"}[${__range}])) by (view_name,username)"
                         },
                         "filters": [],
                         "groupNames": [
@@ -499,7 +500,8 @@
                     "showLegend": false,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               }
@@ -523,7 +525,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "max(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})[1y])"
+                          "value": "sum(max_over_time(cx_configuration{account=~\"{{account}}\",team_id=~\"{{team_id}}\",type=\"cx_dashboard\"})[1y])"
                         },
                         "aggregation": "AGGREGATION_LAST",
                         "filters": [],
@@ -558,16 +560,17 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sort_desc(sum(sum_over_time(dashboards_usage_cx_docs_total{}[7d])) by (dashboard_name))"
+                          "value": "sort_desc(sum(sum_over_time(dashboards_usage_cx_docs_total{team_name=~\"{{team_id}}\",dashboard_name!=\"cx_null\"}[${__range}])) by (team_name,dashboard_name))"
                         },
                         "filters": [],
                         "groupNames": [
-                          "dashboard_name"
+                          "dashboard_name",
+                          "team_name"
                         ],
                         "editorMode": "METRICS_QUERY_EDITOR_MODE_TEXT"
                       }
                     },
-                    "maxBarsPerChart": 24,
+                    "maxBarsPerChart": 32,
                     "stackDefinition": {
                       "maxSlicesPerBar": 7
                     },
@@ -582,7 +585,8 @@
                     },
                     "sortBy": "SORT_BY_TYPE_VALUE",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               },
@@ -596,7 +600,7 @@
                     "query": {
                       "metrics": {
                         "promqlQuery": {
-                          "value": "sum(sum_over_time(dashboards_usage_cx_docs_total{}[7d])) by (username,dashboard_name)"
+                          "value": "sum(sum_over_time(dashboards_usage_cx_docs_total{team_name=~\"{{team_id}}\",dashboard_name!=\"cx_null\"}[${__range}])) by (username,dashboard_name)"
                         },
                         "filters": [],
                         "groupNames": [
@@ -621,7 +625,8 @@
                     "showLegend": false,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               }
@@ -704,7 +709,8 @@
                     "showLegend": true,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               }
@@ -822,7 +828,8 @@
                     "showLegend": true,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               }
@@ -1001,7 +1008,8 @@
                     "showLegend": true,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               },
@@ -1039,7 +1047,8 @@
                     "showLegend": true,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               }
@@ -1138,7 +1147,8 @@
                     "showLegend": true,
                     "unit": "UNIT_UNSPECIFIED",
                     "colorScheme": "classic",
-                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED"
+                    "dataModeType": "DATA_MODE_TYPE_HIGH_UNSPECIFIED",
+                    "customUnit": ""
                   }
                 }
               }

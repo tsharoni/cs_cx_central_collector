@@ -7,7 +7,8 @@ The python services include:
 - **Otel custom metrics sample** (custom_metrics.py)
 - **rules group deployment** (rulesgroups_deployment.py)
 - **audit and configuration dashboard** (audit_and_configuration_statistics.json)
-
+- **dump artifcats (alerts, cx dashboards and grafana dashboards) to json files** (cx_dashboards_dump.py)
+- **import artifact (alerts)** (cx_import.py)
 
 All services (beside custom metrics sample) requires a teams.json file which contains the following data:
 ```json
@@ -135,3 +136,22 @@ The following python functions (provided in cx_infra.py) are being used:
 
 ## audit and configuration dashboard
 The dashboard visualizes the data collected by the **coralogix collector** and the **L2Ms auto creation**
+
+## dump artifcats
+The following python functions (provided in cx_infra.py) are being used:
+- get_dashboards: get all cx dashboards for a Coralogix team
+- get_dashboard_file: get the json file of a dashboard
+- get_grafana_dashboards: get all grafana dashboards for a Coralogix team
+- get_grafana_dashboards_file: get the json file of a grafana dashboard
+- get_alerts: get the alerts to a file
+The account environment value is required to loop over the account's team
+
+## import artifcats
+The following python functions (provided in cx_infra.py) are being used:
+- create_alert: create an alert on a Coralogix team
+The script is based on the alerts json file exported from the dump artifacts script
+The CX_API_KEY and the CX_API_KEY_REGION are required to import the alerts
+The script requires the following parameters:
+```shell
+python3 cx_import.py --alert_file_name <alert file name>.json --alert_name <regex for the alert name>
+```

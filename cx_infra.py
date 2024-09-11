@@ -1,4 +1,3 @@
-
 import requests
 import json
 
@@ -56,7 +55,6 @@ def call_http_extended(url, key, method="GET", data={}, files={}, content_type='
 
 
 def call_grpc(region, key, method, params=None, data_output=True):
-
     server_address = coralogix_grpc_url.format(region_domains[region])
 
     # Replace with your actual Bearer token
@@ -98,7 +96,6 @@ def call_grpc(region, key, method, params=None, data_output=True):
 
 
 def delete_apm_services(region, key, pattern):
-
     pat = re.compile(r"{}".format(pattern))
 
     json_data = call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
@@ -133,6 +130,7 @@ def convert_dict_to_json(dict, value_label, target_label):
 
     return json_output
 
+
 def create_e2m(region,
                key,
                name,
@@ -144,7 +142,6 @@ def create_e2m(region,
                applications="",
                subsystems="",
                permutation=30000):
-
     labels_json = convert_dict_to_json(labels_list, "targetLabel", "sourceField")
     metrics_json = convert_dict_to_json(metrics_list, "targetBaseMetricName", "sourceField")
 
@@ -171,7 +168,6 @@ def create_e2m(region,
 
 
 def get_views(region, key):
-
     views = {}
     json_data = call_grpc(region, key, GRPC_VIEWS_METHOD)
 
@@ -187,7 +183,6 @@ def get_views(region, key):
 
 
 def get_dashboards(region, key):
-
     dashboards = {}
     json_data = call_grpc(region, key, GRPC_DASHBOARD_METHOD)
 
@@ -203,14 +198,12 @@ def get_dashboards(region, key):
 
 
 def get_dashboard_widgets(region, key, dashboard_id):
-
     parameters = """{"dashboardId":"%s"}""" % dashboard_id
     dashboard_data = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
     return dashboard_data
 
 
 def get_dashboard_file(region, key, dashboard_id):
-
     parameters = """{"dashboardId":"%s"}""" % dashboard_id
     dashboard_file = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters, data_output=False)
     return dashboard_file
@@ -222,25 +215,21 @@ def get_e2m(region, key):
 
 
 def get_recording_rules(region, key):
-
     json_data = call_grpc(region, key, GRPC_RECORDING_RULE_METHOD)
     return json_data
 
 
 def get_apm_services(region, key):
-
     json_data = call_grpc(region, key, GRPC_APM_SERVICES_METHOD)
     return json_data
 
 
 def get_slo(region, key):
-
     json_data = call_grpc(region, key, GRPC_SLO_METHOD)
     return json_data
 
 
 def get_tco(region, key):
-
     json_data = call_grpc(region, key, GRPC_TCO_POLICIES)
     return json_data
 
@@ -253,6 +242,35 @@ def get_tco_overides(region, key):
 
 def get_alerts(region, key):
     return json.loads(call_http_extended(coralogix_alerts_url.format(region_domains[region]), key))
+
+
+def create_alert(region, key, alert_obj):
+    del alert_obj['id']
+    del alert_obj['unique_identifier']
+    del alert_obj['created_at']
+    del alert_obj['lastTriggered']
+    if alert_obj['condition']['promql_text']:
+        if 'group_by_lvl2' in alert_obj['condition']:
+            del alert_obj['condition']['group_by_lvl2']
+        if 'metric_field' in alert_obj['condition']:
+            del alert_obj['condition']['metric_field']
+        if 'metric_source' in alert_obj['condition']:
+            del alert_obj['condition']['metric_source']
+        if 'arithmetic_operator' in alert_obj['condition']:
+            del alert_obj['condition']['arithmetic_operator']
+        if 'group_by' in alert_obj['condition']:
+            del alert_obj['condition']['group_by']
+        #if 'log_filter' in alert_obj:
+        #    del alert_obj['log_filter']
+
+    payload = json.dumps(alert_obj)
+
+    response = call_http_extended(url=coralogix_alerts_url.format(region_domains[region]),
+                                  key=key,
+                                  method="POST",
+                                  data=payload)
+
+    print('Alert [{}] - {}'.format(alert_obj['name'],response))
 
 
 def get_users(region, key):
@@ -294,11 +312,10 @@ def get_grafana_dashboard_file(region, key, dashboard_id):
 
 
 def get_webhooks(region, key):
-    return json.loads(call_http_extended(coralogix_webhook_url.format(region_domains[region],""), key))
+    return json.loads(call_http_extended(coralogix_webhook_url.format(region_domains[region], ""), key))
 
 
 def send_enrichment(region, key, dictionary, enrichment_file_name):
-
     filename = "{}.csv".format(enrichment_file_name)
     f = open(filename, 'w')
 
@@ -310,15 +327,15 @@ def send_enrichment(region, key, dictionary, enrichment_file_name):
     f.close()
 
     payload = {
-            "name": "{}".format(enrichment_file_name),
-            "description": "{}".format(enrichment_file_name)
+        "name": "{}".format(enrichment_file_name),
+        "description": "{}".format(enrichment_file_name)
     }
 
     files = {
-            "file": (filename, open(filename,  'rb'))
+        "file": (filename, open(filename, 'rb'))
     }
 
-    enrichment_url = coralogix_custom_enrichment_url.format(region_domains[region],'','')
+    enrichment_url = coralogix_custom_enrichment_url.format(region_domains[region], '', '')
     # check for existing custom enrichment
     response = json.loads(call_http_extended(
         enrichment_url,
@@ -350,4 +367,3 @@ def send_enrichment(region, key, dictionary, enrichment_file_name):
     print(response)
 
     files['file'][1].close()
-

@@ -10,15 +10,26 @@ def dump_dashboards(region, key, file_prefix):
         print('Failed to retrieve dashboards')
         return
 
+    dashboards_index_file = open("{}.json".format(file_prefix), 'w')
+    dashboards_index_file.write('[')
+    comma = ''
     for dashboard_id in dashboards:
         dashboard_file = cx_infra.get_dashboard_file(region, key, dashboard_id)
 
         if not dashboard_file:
             continue
 
-        output = open("{}-{}.json".format(file_prefix, dashboard_id), 'w')
+        filename = "{}-{}.json".format(file_prefix, dashboard_id)
+        output = open(filename, 'w')
         output.write(dashboard_file)
+        json_entry = {'name': dashboards[dashboard_id], 'dashboard_file_name': filename}
+        dashboards_index_file.write(comma)
+        dashboards_index_file.write(json.dumps(json_entry))
+        comma = ',\n'
         output.close()
+
+    dashboards_index_file.write(']')
+    dashboards_index_file.close()
 
 
 def dump_grafana_dashboards(region, key, file_prefix):
@@ -28,15 +39,26 @@ def dump_grafana_dashboards(region, key, file_prefix):
         print('Failed to retrieve grafana dashboards')
         return
 
+    dashboards_index_file = open("{}.json".format(file_prefix), 'w')
+    dashboards_index_file.write('[')
+    comma = ''
     for dashboard in dashboards:
         dashboard_file = cx_infra.get_grafana_dashboard_file(region, key, dashboard['uid'])
 
         if not dashboard_file:
             continue
 
-        output = open("{}-{}.json".format(file_prefix, dashboard['uid']), 'w')
+        filename = "{}-{}.json".format(file_prefix, dashboard['uid'])
+        output = open(filename, 'w')
         output.write(dashboard_file)
+        json_entry = {'name': dashboard['title'], 'dashboard_file_name': filename}
+        dashboards_index_file.write(comma)
+        dashboards_index_file.write(json.dumps(json_entry))
+        comma = ',\n'
         output.close()
+
+    dashboards_index_file.write(']')
+    dashboards_index_file.close()
 
 
 def dump_alerts(region, key, file_prefix):
@@ -71,6 +93,6 @@ if __name__ == '__main__':
             print("team: {}".format(team["name"]))
             # special setup to get the list of users
             dump_dashboards(region=team["region"], key=team["key"], file_prefix="{}-cx_dashboards".format(team["name"]))
-            dump_grafana_dashboards(region=team["region"], key=team["key"], file_prefix="{}-grafana_dashboards".format(team["name"]))
-            dump_alerts(region=team["region"], key=team["key"], file_prefix="{}-alerts".format(team["name"]))
+            #dump_grafana_dashboards(region=team["region"], key=team["key"], file_prefix="{}-grafana_dashboards".format(team["name"]))
+            #dump_alerts(region=team["region"], key=team["key"], file_prefix="{}-alerts".format(team["name"]))
 

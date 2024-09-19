@@ -38,6 +38,26 @@ GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApm
 GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
 
 
+def replace_value_based_on_sibling(dictionary, target_key, sibling_key, sibling_value, new_value):
+    for key, value in dictionary.items():
+        # If the value is another dictionary, recurse into it
+        if isinstance(value, dict):
+            # Check if both sibling_key and target_key exist in the same dictionary level
+            if sibling_key in value and target_key in value:
+                # If sibling_key has the specific value, change the target_key's value
+                if value[sibling_key] == sibling_value:
+                    value[target_key] = new_value
+
+            # Recurse deeper into nested dictionaries
+            replace_value_based_on_sibling(value, target_key, sibling_key, sibling_value, new_value)
+
+        # If the value is a list, check each element
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    replace_value_based_on_sibling(item, target_key, sibling_key, sibling_value, new_value)
+
+
 def call_http_extended(url, key, method="GET", data={}, files={}, content_type='application/json'):
     headers = {
         'Authorization': 'Bearer {}'.format(key)
@@ -308,7 +328,39 @@ def get_grafana_dashboard_file(region, key, dashboard_id):
         coralogix_grafana_panels_url.format(region_domains[region], dashboard_id),
         key)
     if response != '':
-        return response
+        grafana_json = json.loads(response)
+        # return none if object is not a dashboard
+        if 'panels' not in grafana_json['dashboard']:
+            return
+
+        # add inputs
+        grafana_json["dashboard"]["__inputs"] = [
+            {
+                "name": "DS_LOGS",
+                "label": "Logs",
+                "description": "",
+                "type": "datasource",
+                "pluginId": "elasticsearch",
+                "pluginName": "Elasticsearch"
+            },
+            {
+                "name": "DS_METRICS",
+                "label": "Metrics",
+                "description": "",
+                "type": "datasource",
+                "pluginId": "prometheus",
+                "pluginName": "Prometheus"
+            }
+        ]
+
+        replace_value_based_on_sibling(grafana_json, target_key='uid', sibling_key='type', sibling_value='prometheus',
+                                       new_value='${DS_METRICS}')
+
+        replace_value_based_on_sibling(grafana_json, target_key='uid', sibling_key='type', sibling_value='elasticsearch',
+                                       new_value='${DS_LOGS}')
+
+        json_dump = json.dumps(grafana_json['dashboard'])
+        return json_dump
 
 
 def get_webhooks(region, key):

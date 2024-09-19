@@ -91,8 +91,7 @@ if __name__ == '__main__':
 
         for team in account["teams"]:
             print("team: {}".format(team["name"]))
-            # special setup to get the list of users
             dump_dashboards(region=team["region"], key=team["key"], file_prefix="{}-cx_dashboards".format(team["name"]))
-            #dump_grafana_dashboards(region=team["region"], key=team["key"], file_prefix="{}-grafana_dashboards".format(team["name"]))
-            #dump_alerts(region=team["region"], key=team["key"], file_prefix="{}-alerts".format(team["name"]))
+            dump_grafana_dashboards(region=team["region"], key=team["key"], file_prefix="{}-grafana_dashboards".format(team["name"]))
+            dump_alerts(region=team["region"], key=team["key"], file_prefix="{}-alerts".format(team["name"]))
 

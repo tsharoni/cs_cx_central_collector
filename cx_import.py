@@ -19,7 +19,7 @@ def import_grafana_dashboards(dashboard_name, dashboards_file):
     dashboards = json.load(import_file)
     for dashboard in dashboards:
         if re.search(dashboard_name, dashboard["name"]):
-            print(dashboard["dashboard_file_name"])
+            print('dashboard-name: [{}], dashboard-file: [{}]'.format(dashboard["name"], dashboard["dashboard_file_name"]))
 
 
 def import_cx_dashboards(dashboard_name, dashboards_file):

@@ -46,8 +46,8 @@ if __name__ == '__main__':
             labels_list={
                 "dashboard_name": "action_details.operation.operation_payload.queryDef.selectedViewId_enriched",
                 "username": "actor.username",
-                "coralogix_team": "Application",
-                "team_id": "action.team.teamName",
+                "coralogix_team": "actor.team.teamName",
+                "team_id": "actor.team.teamName",
                 "action": "action_details.operation.action",
                 "action_description": "action.description"},
             permutation=30000

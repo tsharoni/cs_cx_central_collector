@@ -14,7 +14,7 @@ region_domains = {
     'eu2': "eu2.coralogix.com",
     'sg': "coralogixsg.com"
 }
-
+ƒ
 coralogix_alerts_url = "https://api.{}/api/v1/external/alerts"
 coralogix_parsing_url = "https://api.{}/api/v1/external/rules"
 coralogix_parsing_export_url = "https://api.{}/api/v1/external/rules/export"

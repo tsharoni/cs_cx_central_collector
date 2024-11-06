@@ -72,7 +72,7 @@ class CoralogixOtelCounter:
         self.attributes = self.attributes | labels
         self.value = result
         print('Counter: flushing labels:{} value: {}'.format(self.attributes, self.value))
-        if simulate and simulate != 1 and simulate.lower != 'true':
+        if (not simulate) or (simulate and simulate != '1' and simulate.lower() != 'true'):
             self.counter.add(self.value, self.attributes)
 
         for label in labels:

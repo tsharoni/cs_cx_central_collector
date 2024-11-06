@@ -18,25 +18,25 @@ if __name__ == '__main__':
             'token is handled by agent')
 
     # set 2 gauges
-    guage1 = cx_otel.CoralogixOtelGauge('Guage1')
-    guage2 = cx_otel.CoralogixOtelGauge('Gauge2')
+    gauge1 = cx_otel.CoralogixOtelGauge('gauge_test1')
+    gauge2 = cx_otel.CoralogixOtelGauge('Gauge2')
 
     # set meta fields and flush results for each of the gauges
-    guage1.set_meta_attributes({'meta1':'value1', 'meta2':'value2'})
-    guage1.flush_results(otel_provider, {'attr1': 'value3', 'attr2': 'value4'}, 4)
+    gauge1.set_meta_attributes({'meta1':'value1', 'meta2': 'value2'})
+    gauge1.flush_results(otel_provider, {'attr1': 'value3', 'attr2': 'value4'}, 2)
 
-    guage2.set_meta_attributes({'meta1':'value1', 'meta2':'value2'})
-    guage2.flush_results(otel_provider, {'attr1': 'value3'},22)
+    gauge2.set_meta_attributes({'meta1': 'value1', 'meta2': 'value2'})
+    gauge2.flush_results(otel_provider, {'attr1': 'value3'}, 22)
 
     # set 2 counters and set meta fields
 
-    counter1 = cx_otel.CoralogixOtelCounter('counter1')
-    counter1.set_meta_attributes({'meta1':'value1'})
+    counter1 = cx_otel.CoralogixOtelCounter('counter_test')
+    counter1.set_meta_attributes({'meta1': 'value1'})
     counter2 = cx_otel.CoralogixOtelCounter('counter2')
-    counter2.set_meta_attributes({'meta1':'value1'})
+    counter2.set_meta_attributes({'meta1': 'value1'})
 
     # increase counters (every 30 seconds)
-    for x in range(0, 4):
-        counter1.counter_add({'counter1':'value1'},random.randint(1, 10))
-        counter2.counter_add({'counter2':'value2'},random.randint(1, 10))
+    for x in range(0, 0):
+        counter1.counter_add({'counter1': 'value1'}, random.randint(1, 10))
+        counter2.counter_add({'counter2': 'value2'}, random.randint(1, 10))
         time.sleep(30)

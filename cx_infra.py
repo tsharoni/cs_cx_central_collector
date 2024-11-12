@@ -14,7 +14,7 @@ region_domains = {
     'eu2': "eu2.coralogix.com",
     'sg': "coralogixsg.com"
 }
-ƒ
+
 coralogix_alerts_url = "https://api.{}/api/v1/external/alerts"
 coralogix_parsing_url = "https://api.{}/api/v1/external/rules"
 coralogix_parsing_export_url = "https://api.{}/api/v1/external/rules/export"
@@ -36,6 +36,9 @@ GRPC_DASHBOARD_GET_METHOD = "com.coralogixapis.dashboards.v1.services.Dashboards
 GRPC_VIEWS_METHOD = "com.coralogixapis.views.v1.services.ViewsService/ListViews"
 GRPC_APM_DELETE = "com.coralogixapis.apm.services.v1.ApmServiceService/DeleteApmService"
 GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.CreateE2M"
+GRPC_DASHBOARD_CREATE = "com.coralogixapis.dashboards.v1.services.DashboardsService.CreateDashboard"
+GRPC_DASHBOARD_DELETE = "com.coralogixapis.dashboards.v1.services.DashboardsService.DeleteDashboard"
+GRPC_DASHBOARD_REPLACE = "com.coralogixapis.dashboards.v1.services.DashboardsService.ReplaceDashboard"
 
 
 def replace_value_based_on_sibling(dictionary, target_key, sibling_key, sibling_value, new_value):
@@ -105,6 +108,8 @@ def call_grpc(region, key, method, params=None, data_output=True):
         # Print the output and error
         if error != '':
             print("method: '{}' \n - {}".format(method, error))
+            return {'status': 'ERROR'}
+
         elif data_output:
             json_data = json.loads(output)
             return json_data
@@ -187,6 +192,34 @@ def create_e2m(region,
     print("{}".format(json_data))
 
 
+def create_dashboard(region,
+                     key,
+                     dashboard_data):
+
+    json_data = call_grpc(region,key,GRPC_DASHBOARD_CREATE, dashboard_data)
+    if 'status' in json_data and json_data['status']=='ERROR':
+        json_data = call_grpc(region, key, GRPC_DASHBOARD_REPLACE, dashboard_data)
+
+    print("{}".format(json_data))
+
+
+def replace_dashboard(region,
+                      key,
+                      dashboard_data):
+
+    json_data = call_grpc(region, key, GRPC_DASHBOARD_REPLACE, dashboard_data)
+
+    print("{}".format(json_data))
+
+
+def delete_dashboard(region,
+                     key,
+                     dashboard_data):
+
+    json_data = call_grpc(region,key,GRPC_DASHBOARD_DELETE, dashboard_data)
+    print("{}".format(json_data))
+
+
 def get_views(region, key):
     views = {}
     json_data = call_grpc(region, key, GRPC_VIEWS_METHOD)
@@ -212,7 +245,7 @@ def get_dashboards(region, key):
     for dashboard in json_data['items']:
         dashboards[dashboard['id']] = dashboard['name']
 
-    print('number of dashboard added [{}]'.format(len(dashboards)))
+    print('number of dashboard retrieved [{}]'.format(len(dashboards)))
 
     return dashboards
 

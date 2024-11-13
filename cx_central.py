@@ -192,7 +192,7 @@ def flush_dashboards(region, key):
 
     panels_type = {}
     for dashboard_id in dashboards:
-        dashboard_data = cx_infra.get_dashboard_widgets(region, key, dashboard_id)
+        dashboard_data = cx_infra.get_dashboard(region, key, dashboard_id)
 
         if not dashboard_data:
             continue

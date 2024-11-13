@@ -1,14 +1,14 @@
-import json,argparse
+import json, argparse
 from mako.template import Template
 from os import environ
 
-from cx_infra import create_dashboard, delete_dashboard, replace_dashboard, get_dashboards
+from cx_infra import create_dashboard, replace_dashboard, get_dashboards
 
 
 ##########################################################################################
-# custom_dashboard_deployment recieves:
-#    dasoboard file as a mako file template
-#    keypairs value to replace placeholders in template with values
+# custom_dashboard_deployment receives:
+#    dashboard file as a mako file template
+#    key-value pairs to replace placeholders(keys) in template with values
 #
 # to launch the script use:
 #    python3 custom_dashboard_deployment dashboard.mako --params key1=value1 key2=value2
@@ -44,7 +44,7 @@ def retrieve_dashboard_id(dashboard_name, region, key):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('dashboard_name', help="add dashboard name mako file")
+    parser.add_argument('--dashboard_file', help="add dashboard name mako file")
     parser.add_argument('--params', nargs="+", help="parameters to render the file in key=value format")
 
     args = parser.parse_args()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     params_dict = parse_unknown_args(args.params) if args.params else {}
     params_dict['__range'] = '${__range}'
 
-    file_path = "cx_usage_dashboard.mako"
+    file_path = args.dashboard_file
     with open(file_path, 'r') as file:
         file_content = file.read()
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
                     dashboard_data=json.dumps(dashboard_json)
                 )
             else:
-                # create if doesn't (remove the ID to create a new one)
+                # create if the ID doesn't exist(remove the ID to create a new one)
                 del dashboard_json['dashboard']['id']
                 create_dashboard(
                     region=team['region'],

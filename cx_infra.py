@@ -250,7 +250,7 @@ def get_dashboards(region, key):
     return dashboards
 
 
-def get_dashboard_widgets(region, key, dashboard_id):
+def get_dashboard(region, key, dashboard_id):
     parameters = """{"dashboardId":"%s"}""" % dashboard_id
     dashboard_data = call_grpc(region, key, GRPC_DASHBOARD_GET_METHOD, parameters)
     return dashboard_data

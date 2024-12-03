@@ -1,6 +1,5 @@
 import json, argparse
 from mako.template import Template
-from os import environ
 
 from cx_infra import create_dashboard, replace_dashboard, get_dashboards
 
@@ -45,6 +44,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--dashboard_file', help="add dashboard name mako file")
+    parser.add_argument('--account', help="add the account name for dashboards deployment")
     parser.add_argument('--params', nargs="+", help="parameters to render the file in key=value format")
 
     args = parser.parse_args()
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     f = open('teams.json')
     teams_json = json.load(f)
 
-    account_env = environ.get('account')
+    account_env = args.account
 
     for account in teams_json:
         if account_env != account['account'] and account_env != 'all':

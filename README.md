@@ -9,6 +9,8 @@ The python services include:
 - **audit and configuration dashboard** (audit_and_configuration_statistics.json)
 - **dump artifcats (alerts, cx dashboards and grafana dashboards) to json files** (cx_dashboards_dump.py)
 - **import artifact (alerts)** (cx_import.py)
+- **export custom dashboard** (custom_dashboard_export.py)
+- **deploy custom dashboard** (custom_dashbaord_deployment.py)
 
 All services (beside custom metrics sample) requires a teams.json file which contains the following data:
 ```json
@@ -154,4 +156,31 @@ The CX_API_KEY and the CX_API_KEY_REGION are required to import the alerts
 The script requires the following parameters:
 ```shell
 python3 cx_import.py --alert_file_name <alert file name>.json --alert_name <regex for the alert name>
+```
+## custom dashboard export
+The following python functions (provided in cx_infra.py) are being used:
+ - get_dashboards: get all cx dashboards for a Coralogix team
+ - get_dashboard_file: get the json file of a dashboard to a mako (template) file
+the script requires the following parameters:
+```shell
+python3 custom_dashboard_export.py --dashboard "<dashboard name>" --region <team region> --key <team key with dashboard read access>
+```
+## deploy dashboard export
+The following pyhon functions (provided in cx_infra.py) are being used:
+ - get_dashboards: get all cx dashboards for a Coralogix team
+ - create_dashboard: create a new dashboard from a json file on a coralogix account if dashboard cannot be found
+ - replace_dashboard: replace an existing dashboard with a new one
+
+the script requires the following parameters:
+```shell
+python3 custom_dashboard_deployment.py --dashboard_file <dashboard template file> --account <account name as defined in teams.json> --params <list of key-value pairs for template as unit_price=1.00>
+```
+This script requires a dashboard template file to allow replacing variables inside the template that requires to this deployment
+In this example , the `unit_price` value `1.00` from the params would replace the `${unit_price}` in the template before deployment: 
+```json lines
+"value": "avg_over_time(sum(max_over_time(cx_data_usage_units{tier=\"high\",pillar=\"logs\",application_name=~\"{{application_name}}\",subsystem_name=~\"{{subsystem_name}}\"}[24h]))[${__range}:1h])*${unit_price}"
+```
+Special placeholder added is `${team_name}` that replaces the placeholder with the coralogix team name as specified in the teams.json file:
+```json lines
+    "name": "[Coralogix] ${team_name} Data Usage and Cost estimate",
 ```

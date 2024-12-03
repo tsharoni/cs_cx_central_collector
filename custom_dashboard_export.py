@@ -29,43 +29,28 @@ def retrieve_dashboard_id(dashboard_name, region, key):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dashboard_name', help="add dashboard name to export")
-    parser.add_argument('--team_name', help="add the team name to export from")
-
+    parser.add_argument('--region', help="add the team region name of the team")
+    parser.add_argument('--key', help="add the api key to export the dashboard")
+    parser.add_argument('--dashboard', help="add dashboard name to export")
     args = parser.parse_args()
 
-    f = open('teams.json')
-    teams_json = json.load(f)
 
-    account_env = environ.get('account')
+    # check if the dashboard exists by retrieving the dashboard_id
+    dashboard_id = retrieve_dashboard_id(args.dashboard, args.region, args.key)
 
-    for account in teams_json:
-        if account_env != account['account'] and account_env != 'all':
-            continue
+    if dashboard_id:
+        dashboard_file = get_dashboard_file(args.region, args.key, dashboard_id)
 
-        if 'skip' in account and account['skip']:
-            continue
+        if not dashboard_file:
+            print('dashboard file cannot be exported for [{}]'.format(dashboard_id))
 
-        for team in account['teams']:
-            if team['name'] != args.team_name:
-                continue
-
-            # check if the dashboard already exists by retrieving the dashboard_id
-            dashboard_id = retrieve_dashboard_id(args.dashboard_name, team['region'], team['key'])
-
-            if dashboard_id:
-                dashboard_file = get_dashboard_file(team['region'], team['key'], dashboard_id)
-
-                if not dashboard_file:
-                    print('dashboard file cannot be exported for [{}]'.format(dashboard_id))
-
-                filename = "{}-{}.json".format(team['name'], dashboard_id)
-                output = open(filename, 'w')
-                output.write(dashboard_file)
-                output.close()
-                break
-            else:
-                print('dashboard [{}] cannot be found'.format(args.dashboard_name))
+        filename = "dashboard-template-{}.mako".format(dashboard_id)
+        output = open(filename, 'w')
+        output.write(dashboard_file)
+        output.close()
+        print('dashboard template mako file [{}] created'.format(filename))
+    else:
+        print('dashboard [{}] cannot be found'.format(args.dashboard))
 
 
 

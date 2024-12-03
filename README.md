@@ -153,7 +153,8 @@ The following python functions (provided in cx_infra.py) are being used:
 - create_alert: create an alert on a Coralogix team
 The script is based on the alerts json file exported from the dump artifacts script
 The CX_API_KEY and the CX_API_KEY_REGION are required to import the alerts
-The script requires the following parameters:
+
+#The script requires the following parameters:
 ```shell
 python3 cx_import.py --alert_file_name <alert file name>.json --alert_name <regex for the alert name>
 ```
@@ -161,7 +162,8 @@ python3 cx_import.py --alert_file_name <alert file name>.json --alert_name <rege
 The following python functions (provided in cx_infra.py) are being used:
  - get_dashboards: get all cx dashboards for a Coralogix team
  - get_dashboard_file: get the json file of a dashboard to a mako (template) file
-the script requires the following parameters:
+
+#The script requires the following parameters:
 ```shell
 python3 custom_dashboard_export.py --dashboard "<dashboard name>" --region <team region> --key <team key with dashboard read access>
 ```
@@ -171,7 +173,7 @@ The following pyhon functions (provided in cx_infra.py) are being used:
  - create_dashboard: create a new dashboard from a json file on a coralogix account if dashboard cannot be found
  - replace_dashboard: replace an existing dashboard with a new one
 
-the script requires the following parameters:
+#The script requires the following parameters:
 ```shell
 python3 custom_dashboard_deployment.py --dashboard_file <dashboard template file> --account <account name as defined in teams.json> --params <list of key-value pairs for template as unit_price=1.00>
 ```

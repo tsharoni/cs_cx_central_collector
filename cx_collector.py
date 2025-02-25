@@ -50,7 +50,7 @@ if __name__ == '__main__':
             cx_central.flush_tco_overrides(region=team["region"], key=team["key"])
             cx_central.flush_e2m(region=team["region"], key=team["key"])
             cx_central.flush_tco(region=team["region"], key=team["key"])
-            cx_central.flush_recording_rule(region=team["region"], key=team["key"])
+            #cx_central.flush_recording_rule(region=team["region"], key=team["key"])
             cx_central.flush_apm_services(region=team["region"], key=team["key"])
             cx_central.flush_slo(region=team["region"], key=team["key"])
             cx_central.flush_dashboards(region=team["region"], key=team["key"])

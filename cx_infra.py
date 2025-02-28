@@ -404,6 +404,8 @@ def send_enrichment(region, key, dictionary, enrichment_file_name):
     filename = "{}.csv".format(enrichment_file_name)
     f = open(filename, 'w')
 
+    f.write("key,value\r\n")
+
     for item in dictionary:
         # replacing comma with semicolon
         item_value = dictionary[item].replace(',', ';')

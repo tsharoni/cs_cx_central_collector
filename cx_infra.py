@@ -25,6 +25,8 @@ coralogix_tco_overrides_url = "https://api.{}/api/v1/external/tco/overrides"
 coralogix_custom_enrichment_url = "https://webapi.{}/api/v1/external/custom-enrichments{}{}"
 coralogix_grpc_url = "ng-api-grpc.{}:443"
 coralogix_users_url = "https://api.{}/api/v1/user/team/teammates"
+coralogix_users_scim_url = "https://api.{}/scim/Users"
+coralogix_users_scim_delete_url = "https://api.{}/scim/Users/{}"
 
 GRPC_E2M_METHOD = "com.coralogixapis.events2metrics.v2.Events2MetricService.ListE2M"
 GRPC_RECORDING_RULE_METHOD = "rule_manager.groups.RuleGroups.List"
@@ -71,7 +73,10 @@ def call_http_extended(url, key, method="GET", data={}, files={}, content_type='
 
     try:
         response = requests.request(method, url, headers=headers, data=data, files=files)
-        return response.text
+        if response.text:
+            return response.text
+        else:
+            return response.status_code
     except:
         print('http error')
         return
@@ -324,6 +329,20 @@ def create_alert(region, key, alert_obj):
                                   data=payload)
 
     print('Alert [{}] - {}'.format(alert_obj['name'],response))
+
+
+def get_users_scim(region, key):
+    return json.loads(call_http_extended(coralogix_users_scim_url.format(region_domains[region]), key))
+
+
+
+def delete_user_scim(region, key, user_id):
+    response = call_http_extended(url=coralogix_users_scim_delete_url.format(region_domains[region], user_id),
+                                  key=key,
+                                  method="DELETE",
+                                  data={})
+
+    print('user [{}] - status_code [{}]'.format(user_id,response))
 
 
 def get_users(region, key):

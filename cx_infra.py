@@ -302,6 +302,16 @@ def get_alerts(region, key):
     return json.loads(call_http_extended(coralogix_alerts_url.format(region_domains[region]), key))
 
 
+def delete_alert(region, key, alert_id):
+    response = call_http_extended(url=coralogix_alerts_url.format(region_domains[region]),
+                                  key=key,
+                                  method="DELETE",
+                                  data=json.dumps({"id": alert_id})
+                                  )
+
+    print('alert-id [{}] - status_code [{}]'.format(alert_id,response))
+
+
 def create_alert(region, key, alert_obj):
     del alert_obj['id']
     del alert_obj['unique_identifier']

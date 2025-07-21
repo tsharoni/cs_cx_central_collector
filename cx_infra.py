@@ -41,7 +41,9 @@ GRPC_E2M_CREATE = "com.coralogixapis.events2metrics.v2.Events2MetricService.Crea
 GRPC_DASHBOARD_CREATE = "com.coralogixapis.dashboards.v1.services.DashboardsService.CreateDashboard"
 GRPC_DASHBOARD_DELETE = "com.coralogixapis.dashboards.v1.services.DashboardsService.DeleteDashboard"
 GRPC_DASHBOARD_REPLACE = "com.coralogixapis.dashboards.v1.services.DashboardsService.ReplaceDashboard"
-
+GRPC_API_TEAM_KEYS_GET = "com.coralogix.apikeys.v2.ApiKeysMgmtService/GetTeamApiKeys"
+GRPC_API_SEND_KEYS_GET = "com.coralogix.apikeys.v2.ApiKeysMgmtService/GetSendDataApiKeys"
+GRPC_API_KEY_DELETE = "com.coralogix.apikeys.v2.ApiKeysMgmtService/DeleteKey"
 
 def replace_value_based_on_sibling(dictionary, target_key, sibling_key, sibling_value, new_value):
     for key, value in dictionary.items():
@@ -290,6 +292,23 @@ def get_slo(region, key):
 def get_tco(region, key):
     json_data = call_grpc(region, key, GRPC_TCO_POLICIES)
     return json_data
+
+
+def get_api_send_keys(region, key):
+    json_data = call_grpc(region, key, GRPC_API_SEND_KEYS_GET)
+    return json_data
+
+
+def get_api_team_keys(region, key):
+    json_data = call_grpc(region, key, GRPC_API_TEAM_KEYS_GET)
+    return json_data
+
+
+def delete_api_key(region, key, api_key_id):
+    parameters = """{"key_id":"%s"}""" % api_key_id
+    json_data = call_grpc(region, key, GRPC_API_KEY_DELETE, parameters, data_output=False)
+    return json_data
+
 
 
 def get_tco_overides(region, key):

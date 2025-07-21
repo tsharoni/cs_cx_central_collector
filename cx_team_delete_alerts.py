@@ -27,7 +27,6 @@ if __name__ == '__main__':
 
         for team in account["teams"]:
             print("team: {}".format(team["name"]))
-            # special setup to get the list of users
             try:
                 alerts = cx_infra.get_alerts(region=team["region"], key=team["key"])
                 for alert in alerts["alerts"]:
@@ -37,4 +36,4 @@ if __name__ == '__main__':
                 print("total {}".format(len(alerts["alerts"])))
 
             except Exception as e:
-                print("Error:{}{}".format(e, 'cant read users'))
+                print("Error:{}{}".format(e, 'cant read alerts'))

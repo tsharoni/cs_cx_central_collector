@@ -35,10 +35,8 @@ if __name__ == '__main__':
                 for user in users["Resources"]:
                     print('id = {} , username = {}'.format(user["id"],user["userName"]))
                     cx_infra.delete_user_scim(region=team["region"], key=team["key"], user_id=user["id"])
-                    break
                 
                 print("total {}".format(len(users["Resources"])))
 
             except Exception as e:
                 print("Error:{}{}".format(e, 'cant read users'))
-            break

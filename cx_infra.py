@@ -6,7 +6,7 @@ import re
 import subprocess
 
 region_domains = {
-    'usprod1': "coralogix.us",
+    'usprod1': "us1.coralogix.com",
     'usprod1-vpc': "coralogix.us",
     'prod': "coralogix.com",
     'cx498': "cx498.coralogix.com",

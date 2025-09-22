@@ -38,14 +38,8 @@ if __name__ == '__main__':
         for team in account["teams"]:
             cx_central.set_attributes(account["account"], team["name"])
             print("team: {}".format(team["name"]))
-            # special setup to get the list of users
-            try:
-                if cx_users_api_key and "team_id" in team:
-                    key = "{}/{}".format(cx_users_api_key, team["team_id"])
-                    cx_central.flush_users(region=team["region"], key=key)
-            except Exception as e:
-                print("Error:{}{}".format(e, 'cant read users'))
 
+            cx_central.flush_users(region=team["region"], key=team["key"])
             cx_central.flush_views(region=team["region"], key=team["key"])
             cx_central.flush_grafana(region=team["region"], key=team["key"])
             cx_central.flush_alerts(region=team["region"], key=team["key"])

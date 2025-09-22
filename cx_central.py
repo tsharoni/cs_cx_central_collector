@@ -312,16 +312,18 @@ def flush_users(region, key):
 
     labels = {'type': 'user'}
 
-    users = cx_infra.get_users(region, key)
+    #users = cx_infra.get_users(region, key)
+    users = cx_infra.get_users_scim(region, key)
 
     total_inactive = 0
     total_active = 0
-    for user in users["data"]:
-        labels["active"] = user["isActive"]
-        labels["username"] = user["username"]
-        labels["created_at"] = user["created_at"]
+    #for user in users["data"]:
+    for user in users["Resources"]:
+        labels["active"] = user["active"]
+        labels["username"] = user["userName"]
+        #labels["created_at"] = user["created_at"]
         cx_configuration.flush_results(provider, labels, 1)
-        if user["isActive"]:
+        if user["active"]:
             total_active += 1
         else:
             total_inactive += 1

@@ -109,9 +109,24 @@ There is not autoamtion to set the key for custom enrichments file. Therefore ma
 The following python functions (provided in cx_infra.py) are being used:
 - create_e2m : create l2m for Users (users activities), dashboards usage , view usage and dataprime queries usage
 
-## Delete APM services
+## Delete alerts (cx_team_delete_alerts.py)
 The following python functions (provided in cx_infra.py) are being used:
-- delete_apm_services : delete all APM services that matches a regex pattern
+- get_alerts : Get all alerts of a team
+- delete_alert: delete an alert (id)
+
+## Delete keys (cx_team_delete_keys.py)
+The following python functions (provided in cx_infra.py) are being used:
+- get_api_team_keys : Get all keys of a team
+- delete_api_key: delete a key (id)
+
+## Delete users (cx_team_delete_users.py)
+The following python functions (provided in cx_infra.py) are being used:
+- get_users_scim : Get all users of a team
+- delete_user_scim: delete a user (id)
+- 
+## Read users (cx_team_read_users)
+The following python functions (provided in cx_infra.py) are being used:
+- get_users_scim : Get all users of a team
 
 ## Otel custom metrics sample
 The following python classes (provided in cx_otel.py) are being used:

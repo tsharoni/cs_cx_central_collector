@@ -78,8 +78,11 @@ if __name__ == '__main__':
             rendered_file = Template(file_content).render(**params_dict)
             dashboard_json = json.loads(rendered_file)
 
-            # removing updatedAt as it is not accepted by the service
-            del dashboard_json['updatedAt']
+            # removing fields not accepted by the service
+            if 'updatedAt' in dashboard_json:
+                del dashboard_json['updatedAt']
+            if 'createdAt' in dashboard_json:
+                del dashboard_json['createdAt']
             # check if the dashboard already exists by retrieving the dashboard_id
             dashboard_id = retrieve_dashboard_id(dashboard_json['dashboard']['name'], team['region'], team['key'])
 

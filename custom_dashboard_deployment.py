@@ -87,6 +87,8 @@ if __name__ == '__main__':
                 del dashboard_json['updaterAuthorId']
             if 'updatedOriginType' in dashboard_json:
                 del dashboard_json['updatedOriginType']
+            if 'updaterName' in dashboard_json:
+                del dashboard_json['updaterName']
 
             # check if the dashboard already exists by retrieving the dashboard_id
             dashboard_id = retrieve_dashboard_id(dashboard_json['dashboard']['name'], team['region'], team['key'])
